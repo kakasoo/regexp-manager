@@ -14,12 +14,39 @@ describe('RegExpBuilder', () => {
 
             expect(current).toBe('from');
         });
+
+        // TODO : fix it.
+        // it('cat in front of dog, dog in front of tree', () => {
+        //     const regexp = new RegExpBuilder()
+        //         .from((qb) => {
+        //             return qb.from('cat').include('dog', { isForehead: true });
+        //         })
+        //         .include('tree', { isForehead: true })
+        //         .getOne();
+
+        //     console.log(regexp);
+        //     expect(regexp.test('treedogcat')).toBe(true);
+        // });
     });
 
-    describe('includeForhead', () => {
+    describe.only('includeForhead', () => {
         it('includeForhead', () => {
             const includeRegExp = new RegExpBuilder().from('test').include('forehead', { isForehead: true }).getOne();
             const res = 'foreheadtest'.match(includeRegExp)?.at(0);
+            expect(res).toBe('test');
+        });
+
+        it('include forhead forhead (twice)', () => {
+            const includeRegExp = new RegExpBuilder()
+                .from('test')
+                .include('[0-9]+', { isForehead: true })
+                .include('[a-z]+', { isForehead: true })
+                .getOne();
+
+            // console.log(includeRegExp);
+            const res = 'cat123test'.match(includeRegExp)?.at(0);
+
+            // console.log(...'cat123test'.matchAll(includeRegExp));
             expect(res).toBe('test');
         });
     });

@@ -1,10 +1,14 @@
+type Status = { name: string; beforeStatus: string; afterStatus: string };
+
 export class RegExpBuilder {
     private flag: 'g' | 'i' | 'ig' | 'm';
     private expression: string;
     private minimum?: number;
     private maximum?: number;
+    private step: Array<Status>;
     constructor(initialValue: string = '') {
         this.expression = initialValue;
+        this.step = [];
     }
 
     /**
@@ -32,6 +36,8 @@ export class RegExpBuilder {
      */
     from(initialValue: string): this;
     from(initialValue: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
+        const beforeStatus = this.currentExpression;
+
         if (typeof initialValue === 'string') {
             this.expression = initialValue;
         } else {
@@ -42,6 +48,12 @@ export class RegExpBuilder {
                 this.expression = result.currentExpression;
             }
         }
+
+        this.pushStatus({
+            name: this.from.name,
+            beforeStatus: beforeStatus,
+            afterStatus: this.currentExpression,
+        });
         return this;
     }
 
@@ -51,7 +63,15 @@ export class RegExpBuilder {
      * @returns `(${string})?`
      */
     whatever() {
+        const beforeStatus = this.currentExpression;
+
         this.expression = `(${this.expression}).`;
+
+        this.pushStatus({
+            name: this.whatever.name,
+            beforeStatus: beforeStatus,
+            afterStatus: this.currentExpression,
+        });
         return this;
     }
 
@@ -61,7 +81,15 @@ export class RegExpBuilder {
      * @returns `(${string})?`
      */
     isOptional() {
+        const beforeStatus = this.currentExpression;
+
         this.expression = `(${this.expression})?`;
+
+        this.pushStatus({
+            name: this.isOptional.name,
+            beforeStatus: beforeStatus,
+            afterStatus: this.currentExpression,
+        });
         return this;
     }
 
@@ -83,13 +111,20 @@ export class RegExpBuilder {
         partial: string | ((qb: RegExpBuilder) => string),
         options: { isForehead?: boolean } = { isForehead: true },
     ) {
+        const beforeStatus = this.currentExpression;
+
+        const includeCount = this.step.filter((el) => el.name === this.include.name).length;
+        console.log(this.step);
+        if (includeCount >= 2) {
+            const firstIncludeIndex = this.step.findIndex((el) => el.name === this.include.name);
+        }
+
         if (typeof partial === 'string') {
             if (options.isForehead) {
                 this.expression = this.lookbehind(partial, this.expression);
             } else {
                 this.expression = this.lookaround(this.expression, partial);
             }
-            return this;
         } else if (typeof partial === 'function') {
             const subRegExp = partial(new RegExpBuilder());
 
@@ -98,12 +133,26 @@ export class RegExpBuilder {
             } else {
                 this.expression = this.lookaround(this.expression, subRegExp);
             }
-            return this;
         }
+
+        this.pushStatus({
+            name: this.include.name,
+            beforeStatus: beforeStatus,
+            afterStatus: this.currentExpression,
+        });
+        return this;
     }
 
     lessThanEqual(maximum: number) {
+        const beforeStatus = this.currentExpression;
+
         this.maximum = maximum;
+
+        this.pushStatus({
+            name: this.lessThanEqual.name,
+            beforeStatus: beforeStatus,
+            afterStatus: this.currentExpression,
+        });
         return this;
     }
 
@@ -130,6 +179,16 @@ export class RegExpBuilder {
         }
 
         return expression;
+    }
+
+    /**
+     * TODO : classify elements by execution order
+     * @param status
+     * @returns
+     */
+    private pushStatus(status: Status) {
+        this.step.push(status);
+        return this;
     }
 
     /**

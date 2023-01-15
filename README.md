@@ -23,3 +23,11 @@ you just use `createRegExpBuilder()` method.
 so, you can create regExp and decorate by using RegExpBuilder methods.  
 You can simply call a method called `createRegExpBuilder` to create a builder, and you can use various methods to create regular expressions without learning it.  
 The code above makes you not have to memorize regular expression symbols such as lookaround and lookbehind.
+
+# sub-expression
+
+```typescript
+const current = new RegExpBuilder().from((qb) => {
+    return qb.from('cat').include('dog').currentExpression;
+}).currentExpression;
+```
