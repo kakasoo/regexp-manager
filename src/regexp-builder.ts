@@ -12,10 +12,27 @@ export class RegExpBuilder {
         return this;
     }
 
+    /**
+     * it make dot.
+     * it means ".". It means that it doesn't matter what letter it is.
+     * @returns `(${string})?`
+     */
+    whatever() {
+        this.expression = `(${this.expression}).`;
+        return this;
+    }
+
+    /**
+     * it make quantifier.
+     * it means "?". It means that it doesn't matter if this character is present or not.
+     * @returns `(${string})?`
+     */
     isOptional() {
         this.expression = `(${this.expression})?`;
         return this;
     }
+
+    anything;
 
     /**
      *
