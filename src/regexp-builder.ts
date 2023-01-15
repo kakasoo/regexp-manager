@@ -7,13 +7,40 @@ export class RegExpBuilder {
         this.expression = initialValue;
     }
 
+    /**
+     * return current's expression
+     */
+    get currentExpression() {
+        return this.expression;
+    }
+
+    /**
+     * To prevent people from making mistakes,
+     * return the current expression if someone return a non-string value.
+     * @param qb function return RegExpBuilder
+     */
+    from(qb: (RegExpBuilder: RegExpBuilder) => RegExpBuilder): this;
+
+    /**
+     * @param qb function return string type which is sub-expression
+     */
     from(qb: (RegExpBuilder: RegExpBuilder) => string): this;
+
+    /**
+     *
+     * @param initialValue sub-expression
+     */
     from(initialValue: string): this;
-    from(initialValue: string | ((qb: RegExpBuilder) => string)): this {
+    from(initialValue: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
         if (typeof initialValue === 'string') {
             this.expression = initialValue;
         } else {
-            this.expression = initialValue(new RegExpBuilder());
+            const result = initialValue(new RegExpBuilder());
+            if (typeof result === 'string') {
+                this.expression = result;
+            } else {
+                this.expression = result.currentExpression;
+            }
         }
         return this;
     }
@@ -78,13 +105,6 @@ export class RegExpBuilder {
     lessThanEqual(maximum: number) {
         this.maximum = maximum;
         return this;
-    }
-
-    /**
-     * return current's expression
-     */
-    get currentExpression() {
-        return this.expression;
     }
 
     /**
