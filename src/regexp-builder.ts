@@ -7,7 +7,7 @@ export class RegExpBuilder {
         this.expression = initialValue;
     }
 
-    from(qb: (RegExpBuilder) => string): this;
+    from(qb: (RegExpBuilder: RegExpBuilder) => string): this;
     from(initialValue: string): this;
     from(initialValue: string | ((qb: RegExpBuilder) => string)): this {
         if (typeof initialValue === 'string') {
@@ -78,6 +78,13 @@ export class RegExpBuilder {
     lessThanEqual(maximum: number) {
         this.maximum = maximum;
         return this;
+    }
+
+    /**
+     * return current's expression
+     */
+    get currentExpression() {
+        return this.expression;
     }
 
     /**

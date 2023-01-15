@@ -44,13 +44,11 @@
         "transformIgnorePatterns": [
             "^.+\\.js$"
         ],
+        "testRegex": ".*\\.spec\\.ts$",
         "transform": {
             "^.+\\.(t|j)s$": "ts-jest"
         },
         "coverageDirectory": "../coverage",
-        "testEnvironment": "node",
-        "testMatch": [
-            "<rootDir>/**/?(*.)(spec|test).{js,jsx}"
-        ]
+        "testEnvironment": "node"
     }
 }

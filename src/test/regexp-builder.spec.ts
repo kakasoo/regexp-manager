@@ -1,6 +1,21 @@
 import { RegExpBuilder } from '../regexp-builder';
 
 describe('RegExpBuilder', () => {
+    describe('check from method work correctly.', () => {
+        it('from', () => {
+            const current = new RegExpBuilder().from('from').currentExpression;
+            expect(current).toBe('from');
+        });
+
+        it('from paramter can be subRegExpBuilder', async () => {
+            const current = new RegExpBuilder().from((qb) => {
+                return qb.from('from').currentExpression;
+            }).currentExpression;
+
+            expect(current).toBe('from');
+        });
+    });
+
     describe('includeForhead', () => {
         it('includeForhead', () => {
             const includeRegExp = new RegExpBuilder().from('test').include('forehead', { isForehead: true }).getOne();
