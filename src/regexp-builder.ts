@@ -9,10 +9,11 @@ export class RegExpBuilder {
 
     from(qb: (RegExpBuilder) => string): this;
     from(initialValue: string): this;
-    from(initialValue: string) {
+    from(initialValue: string | ((qb: RegExpBuilder) => string)): this {
         if (typeof initialValue === 'string') {
             this.expression = initialValue;
         } else {
+            this.expression = initialValue(new RegExpBuilder());
         }
         return this;
     }
