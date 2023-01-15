@@ -40,15 +40,17 @@
             "json",
             "ts"
         ],
-        "rootDir": "test",
+        "rootDir": "./src",
         "transformIgnorePatterns": [
             "^.+\\.js$"
         ],
-        "testRegex": ".*\\.spec\\.ts$",
         "transform": {
             "^.+\\.(t|j)s$": "ts-jest"
         },
         "coverageDirectory": "../coverage",
-        "testEnvironment": "node"
+        "testEnvironment": "node",
+        "testMatch": [
+            "<rootDir>/**/?(*.)(spec|test).{js,jsx}"
+        ]
     }
 }

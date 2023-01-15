@@ -1,4 +1,4 @@
-import { RegExpBuilder } from '../src/regexp-builder';
+import { RegExpBuilder } from '../regexp-builder';
 
 describe('RegExpBuilder', () => {
     describe('includeForhead', () => {

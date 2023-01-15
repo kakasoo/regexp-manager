@@ -7,8 +7,13 @@ export class RegExpBuilder {
         this.expression = initialValue;
     }
 
+    from(qb: (RegExpBuilder) => string): this;
+    from(initialValue: string): this;
     from(initialValue: string) {
-        this.expression = initialValue;
+        if (typeof initialValue === 'string') {
+            this.expression = initialValue;
+        } else {
+        }
         return this;
     }
 
@@ -31,8 +36,6 @@ export class RegExpBuilder {
         this.expression = `(${this.expression})?`;
         return this;
     }
-
-    anything;
 
     /**
      *
