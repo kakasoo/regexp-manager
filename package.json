@@ -1,0 +1,53 @@
+{
+    "name": "regexp-manager",
+    "version": "0.0.1",
+    "description": "regexp builder for node.js developer",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "start:dev": "tsc -w",
+        "build": "tsc",
+        "prepare": "npm run build",
+        "format": "prettier --write \"src/**/*.ts\"",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:cov": "jest --coverage"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kakasoo/regexp-manager"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/kakasoo/regexp-manager/issues"
+    },
+    "homepage": "https://github.com/kakasoo/regexp-manager#readme",
+    "dependencies": {
+        "typescript": "^4.9.4"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.2.5",
+        "@types/node": "^18.11.18",
+        "jest": "^29.3.1",
+        "ts-jest": "^29.0.3"
+    },
+    "jest": {
+        "moduleFileExtensions": [
+            "js",
+            "json",
+            "ts"
+        ],
+        "rootDir": "src",
+        "transformIgnorePatterns": [
+            "^.+\\.js$"
+        ],
+        "testRegex": ".*\\.spec\\.ts$",
+        "transform": {
+            "^.+\\.(t|j)s$": "ts-jest"
+        },
+        "coverageDirectory": "../coverage",
+        "testEnvironment": "node"
+    }
+}
