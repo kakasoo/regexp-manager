@@ -1,4 +1,13 @@
-type Status = { name: string; beforeStatus: string; afterStatus: string };
+type IncludeOptions = { isForehead?: boolean };
+
+type Status<T = keyof typeof RegExpBuilder.prototype> = {
+    name: T;
+    value: string;
+    options: T extends 'include' ? IncludeOptions : null;
+    beforeStatus: string;
+    afterStatus: string;
+    order: number;
+};
 
 export class RegExpBuilder {
     private flag: 'g' | 'i' | 'ig' | 'm';
@@ -7,15 +16,17 @@ export class RegExpBuilder {
     private maximum?: number;
     private step: Array<Status>;
     constructor(initialValue: string = '') {
-        this.expression = initialValue;
         this.step = [];
+        if (initialValue) {
+            this.from(initialValue);
+        }
     }
 
     /**
      * return current's expression
      */
     get currentExpression() {
-        return this.expression;
+        return this.execute();
     }
 
     /**
@@ -37,23 +48,26 @@ export class RegExpBuilder {
     from(initialValue: string): this;
     from(initialValue: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
         const beforeStatus = this.currentExpression;
-
+        let value: string;
         if (typeof initialValue === 'string') {
-            this.expression = initialValue;
+            value = initialValue;
         } else {
             const result = initialValue(new RegExpBuilder());
             if (typeof result === 'string') {
-                this.expression = result;
+                value = result;
             } else {
-                this.expression = result.currentExpression;
+                value = result.currentExpression;
             }
         }
 
         this.pushStatus({
-            name: this.from.name,
+            name: 'from',
+            value: value,
+            options: null,
             beforeStatus: beforeStatus,
             afterStatus: this.currentExpression,
-        });
+            order: 0,
+        } as const);
         return this;
     }
 
@@ -65,13 +79,14 @@ export class RegExpBuilder {
     whatever() {
         const beforeStatus = this.currentExpression;
 
-        this.expression = `(${this.expression}).`;
-
         this.pushStatus({
-            name: this.whatever.name,
+            name: 'whatever',
+            value: '.',
+            options: null,
             beforeStatus: beforeStatus,
             afterStatus: this.currentExpression,
-        });
+            order: 1,
+        } as const);
         return this;
     }
 
@@ -83,13 +98,14 @@ export class RegExpBuilder {
     isOptional() {
         const beforeStatus = this.currentExpression;
 
-        this.expression = `(${this.expression})?`;
-
         this.pushStatus({
-            name: this.isOptional.name,
+            name: 'isOptional',
+            value: '?',
+            options: null,
             beforeStatus: beforeStatus,
             afterStatus: this.currentExpression,
-        });
+            order: 1,
+        } as const);
         return this;
     }
 
@@ -111,48 +127,39 @@ export class RegExpBuilder {
         partial: string | ((qb: RegExpBuilder) => string),
         options: { isForehead?: boolean } = { isForehead: true },
     ) {
+        let value: string;
         const beforeStatus = this.currentExpression;
 
-        const includeCount = this.step.filter((el) => el.name === this.include.name).length;
-        console.log(this.step);
-        if (includeCount >= 2) {
-            const firstIncludeIndex = this.step.findIndex((el) => el.name === this.include.name);
-        }
-
         if (typeof partial === 'string') {
-            if (options.isForehead) {
-                this.expression = this.lookbehind(partial, this.expression);
-            } else {
-                this.expression = this.lookaround(this.expression, partial);
-            }
+            value = partial;
         } else if (typeof partial === 'function') {
             const subRegExp = partial(new RegExpBuilder());
-
-            if (options.isForehead) {
-                this.expression = this.lookbehind(subRegExp, this.expression);
-            } else {
-                this.expression = this.lookaround(this.expression, subRegExp);
-            }
+            value = subRegExp;
         }
 
         this.pushStatus({
-            name: this.include.name,
+            name: 'include',
+            value: value,
+            options: options,
             beforeStatus: beforeStatus,
             afterStatus: this.currentExpression,
-        });
+            order: 2,
+        } as const);
         return this;
     }
 
     lessThanEqual(maximum: number) {
         const beforeStatus = this.currentExpression;
-
         this.maximum = maximum;
 
         this.pushStatus({
-            name: this.lessThanEqual.name,
+            name: 'lessThanEqual',
+            value: maximum.toString(),
+            options: null,
             beforeStatus: beforeStatus,
             afterStatus: this.currentExpression,
-        });
+            order: 3,
+        } as const);
         return this;
     }
 
@@ -166,17 +173,7 @@ export class RegExpBuilder {
     }
 
     getRawOne(): string {
-        let expression = this.expression;
-        if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
-            // more than equal minimum, less thean equal maximum
-            expression = `${expression}{${this.minimum}, ${this.maximum}}`;
-        } else if (typeof this.minimum === 'number') {
-            // more than equal minimum
-            expression = `${expression}{${this.minimum},}`;
-        } else if (typeof this.maximum === 'number') {
-            // more than equal 1, less thean equal maximum
-            expression = `${expression}{1,${this.maximum}}`;
-        }
+        let expression = this.execute();
 
         return expression;
     }
@@ -209,5 +206,45 @@ export class RegExpBuilder {
     private lookbehind(first: string, second: string): `(?<=(${string}))(${string})` {
         const symbol = '?<=';
         return `(${symbol}(${first}))(${second})`;
+    }
+
+    /**
+     * A function that returns a pattern by executing the methods written so far in order.
+     * @returns RegExp's first parameter named "pattern"
+     */
+    execute() {
+        const sorted = this.step
+            .sort((a, b) => a.order - b.order)
+            .reduce((acc, { name, value, options, beforeStatus, afterStatus, order }) => {
+                if (name === 'from') {
+                    return value;
+                } else if (name === 'include') {
+                    if (options.isForehead) {
+                        return this.lookbehind(value, acc);
+                    } else {
+                        return this.lookaround(acc, value);
+                    }
+                } else if (name === 'lessThanEqual') {
+                    if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
+                        // more than equal minimum, less thean equal maximum
+                        return `${acc}{${this.minimum}, ${this.maximum}}`;
+                    } else if (typeof this.minimum === 'number') {
+                        // more than equal minimum
+                        return `${acc}{${this.minimum},}`;
+                    } else if (typeof this.maximum === 'number') {
+                        // more than equal 1, less thean equal maximum
+                        return `${acc}{1,${this.maximum}}`;
+                    }
+                } else if (name === 'whatever') {
+                    if (acc === '') {
+                        return '.';
+                    }
+                    return `(${acc}).`;
+                } else if (name === 'isOptional') {
+                    return `(${acc})?`;
+                }
+            }, '');
+
+        return sorted;
     }
 }
