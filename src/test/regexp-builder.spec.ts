@@ -64,6 +64,13 @@ describe('RegExpBuilder', () => {
             const res = 'cat is behind of dog'.match(includeRegExp)?.at(0);
             expect(res).toBe('cat is behind of ');
         });
+
+        it('get only protocol such as "https"', () => {
+            const regExp = new RegExpBuilder().from('https').include('://', { isForehead: false }).getOne();
+            const protocol = 'https://www.kakasoo.com/'.match(regExp).at(0);
+
+            expect(protocol).toBe('https');
+        });
     });
 
     describe('includeForhead & includeBehind', () => {
