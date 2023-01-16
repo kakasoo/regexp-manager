@@ -5,7 +5,6 @@ type Status<T = keyof typeof RegExpBuilder.prototype> = {
     value: string;
     options: T extends 'include' ? IncludeOptions : null;
     beforeStatus: string;
-    afterStatus: string;
     order: number;
 };
 
@@ -65,7 +64,6 @@ export class RegExpBuilder {
             value: value,
             options: null,
             beforeStatus: beforeStatus,
-            afterStatus: this.currentExpression,
             order: 0,
         } as const);
         return this;
@@ -84,7 +82,6 @@ export class RegExpBuilder {
             value: '.',
             options: null,
             beforeStatus: beforeStatus,
-            afterStatus: this.currentExpression,
             order: 1,
         } as const);
         return this;
@@ -103,10 +100,46 @@ export class RegExpBuilder {
             value: '?',
             options: null,
             beforeStatus: beforeStatus,
-            afterStatus: this.currentExpression,
             order: 1,
         } as const);
         return this;
+    }
+
+    /**
+     *
+     * @param partial sub-regular expression builder that returns a string
+     * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
+     */
+    andInclude(partial: (qb: RegExpBuilder) => string, options?: { isForehead?: boolean }): this;
+
+    /**
+     * Specifies the string that must be included before and after the current expression.
+     * @param partial string to be included but not captured.
+     * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
+     * @returns
+     */
+    andInclude(partial: string, options?: { isForehead?: boolean }): this;
+    andInclude(
+        partial: string | ((qb: RegExpBuilder) => string),
+        options: { isForehead?: boolean } = { isForehead: true },
+    ) {
+        let value: string;
+        const beforeStatus = this.currentExpression;
+
+        if (typeof partial === 'string') {
+            value = partial;
+        } else if (typeof partial === 'function') {
+            const subRegExp = partial(new RegExpBuilder());
+            value = subRegExp;
+        }
+
+        const includeStatement = this.step.find((el) => el.name === 'include');
+        if (includeStatement) {
+            includeStatement.value = `${value}${includeStatement.value}`;
+            return this;
+        }
+
+        return this.include(value, options);
     }
 
     /**
@@ -142,7 +175,6 @@ export class RegExpBuilder {
             value: value,
             options: options,
             beforeStatus: beforeStatus,
-            afterStatus: this.currentExpression,
             order: 2,
         } as const);
         return this;
@@ -157,7 +189,6 @@ export class RegExpBuilder {
             value: maximum.toString(),
             options: null,
             beforeStatus: beforeStatus,
-            afterStatus: this.currentExpression,
             order: 3,
         } as const);
         return this;
@@ -215,7 +246,7 @@ export class RegExpBuilder {
     execute() {
         const sorted = this.step
             .sort((a, b) => a.order - b.order)
-            .reduce((acc, { name, value, options, beforeStatus, afterStatus, order }) => {
+            .reduce((acc, { name, value, options, beforeStatus, order }, index, arr) => {
                 if (name === 'from') {
                     return value;
                 } else if (name === 'include') {

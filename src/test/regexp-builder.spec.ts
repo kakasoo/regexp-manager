@@ -36,20 +36,16 @@ describe('RegExpBuilder', () => {
             expect(res).toBe('test');
         });
 
-        // TODO : fix it.
-        // it('include forhead forhead (twice)', () => {
-        //     const includeRegExp = new RegExpBuilder()
-        //         .from('test')
-        //         .include('[0-9]+', { isForehead: true })
-        //         .include('[a-z]+', { isForehead: true })
-        //         .getOne();
+        it('include forhead forhead (twice)', () => {
+            const includeRegExp = new RegExpBuilder()
+                .from('test')
+                .include('[0-9]+', { isForehead: true })
+                .andInclude('[a-z]+', { isForehead: true })
+                .getOne();
 
-        //     // console.log(includeRegExp);
-        //     const res = 'cat123test'.match(includeRegExp)?.at(0);
-
-        //     // console.log(...'cat123test'.matchAll(includeRegExp));
-        //     expect(res).toBe('test');
-        // });
+            const res = 'cat123test'.match(includeRegExp)?.at(0);
+            expect(res).toBe('test');
+        });
     });
 
     describe('includeBehind', () => {
@@ -107,7 +103,6 @@ describe('RegExpBuilder', () => {
     describe('lessThan', () => {
         it('1. string "a" but lessThanEqual 3', () => {
             const regExp = new RegExpBuilder().from('a').lessThanEqual(3).getOne();
-            console.log(regExp);
             expect('a'.match(regExp)?.at(0) === 'a').toBe(true);
             expect('aa'.match(regExp)?.at(0) === 'aa').toBe(true);
             expect('aaa'.match(regExp)?.at(0) === 'aaa').toBe(true);
