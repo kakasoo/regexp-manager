@@ -124,7 +124,6 @@ export class RegExpBuilder {
         options: { isForehead?: boolean } = { isForehead: true },
     ) {
         let value: string;
-        const beforeStatus = this.currentExpression;
 
         if (typeof partial === 'string') {
             value = partial;
