@@ -28,17 +28,24 @@ export class RegExpBuilder {
         return this.execute();
     }
 
+    and(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
+    and(qb: (regExpBuilder: RegExpBuilder) => string): this;
+    and(partial: string): this;
+    and(partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
+        return this;
+    }
+
     /**
      * To prevent people from making mistakes,
      * return the current expression if someone return a non-string value.
      * @param qb function return RegExpBuilder
      */
-    from(qb: (RegExpBuilder: RegExpBuilder) => RegExpBuilder): this;
+    from(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
 
     /**
      * @param qb function return string type which is sub-expression
      */
-    from(qb: (RegExpBuilder: RegExpBuilder) => string): this;
+    from(qb: (regExpBuilder: RegExpBuilder) => string): this;
 
     /**
      *
@@ -243,7 +250,7 @@ export class RegExpBuilder {
      * A function that returns a pattern by executing the methods written so far in order.
      * @returns RegExp's first parameter named "pattern"
      */
-    execute() {
+    private execute() {
         const sorted = this.step
             .sort((a, b) => a.order - b.order)
             .reduce((acc, { name, value, options, beforeStatus, order }, index, arr) => {

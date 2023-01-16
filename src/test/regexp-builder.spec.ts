@@ -141,4 +141,11 @@ describe('RegExpBuilder', () => {
             expect(optionalNumbers.test('abcd')).toBe(true);
         });
     });
+
+    // TODO : need to be implemented AND statment, OR statement
+    // describe('complicate problem', () => {
+    //     it('make regexp to validate email', async () => {
+    //         new RegExpBuilder('[a-z]')
+    //     });
+    // });
 });
