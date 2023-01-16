@@ -132,12 +132,13 @@ export class RegExpBuilder {
             value = subRegExp;
         }
 
-        const includeStatement = this.step.find((el) => el.name === 'include');
+        const includeStatement = this.step.find(
+            (el) => el.name === 'include' && el.options.isForehead === options.isForehead,
+        );
         if (includeStatement) {
             includeStatement.value = `${value}${includeStatement.value}`;
             return this;
         }
-
         return this.include(value, options);
     }
 
