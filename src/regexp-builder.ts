@@ -32,6 +32,8 @@ export class RegExpBuilder {
     and(qb: (regExpBuilder: RegExpBuilder) => string): this;
     and(partial: string): this;
     and(partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
+        const from = this.step.find((el) => el.name === 'from');
+        from.value = `${partial}${from.value}`;
         return this;
     }
 
