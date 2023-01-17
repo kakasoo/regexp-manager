@@ -35,11 +35,25 @@ export class RegExpBuilder {
         options: AndOptions = { isForehead: true },
     ): this {
         const from = this.step.find((el) => el.name === 'from');
-        if (options?.isForehead === true) {
-            from.value = `${partial}${from.value}`;
+        let value: string = '';
+
+        if (typeof partial === 'string') {
+            value = partial;
         } else {
-            from.value = `${from.value}${partial}`;
+            const result = partial(new RegExpBuilder());
+            if (typeof result === 'string') {
+                value = result;
+            } else {
+                value = result.getRawOne();
+            }
         }
+
+        if (options?.isForehead === true) {
+            from.value = `${value}${from.value}`;
+        } else {
+            from.value = `${from.value}${value}`;
+        }
+
         return this;
     }
 

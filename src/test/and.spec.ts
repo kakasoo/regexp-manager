@@ -10,4 +10,24 @@ describe('check "and" method work correctly.', () => {
         const rightHand = new RegExpBuilder('right').and('Hand', { isForehead: false }).getRawOne();
         expect(rightHand).toBe('rightHand');
     });
+
+    it('first parameter can be function returns string', async () => {
+        const regexp = new RegExpBuilder('one')
+            .and((qb) => {
+                return qb.from('two').and('three').getRawOne();
+            })
+            .getRawOne();
+
+        expect(regexp).toBe('threetwoone');
+    });
+
+    it('first parameter can be function returns instance of RegExpBuilder', async () => {
+        const regexp = new RegExpBuilder('one')
+            .and((qb) => {
+                return qb.from('two').and('three');
+            })
+            .getRawOne();
+
+        expect(regexp).toBe('threetwoone');
+    });
 });
