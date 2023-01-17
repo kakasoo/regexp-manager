@@ -60,7 +60,7 @@ The include method is a method that contains a string that is not included in a 
 The first parameter of the include method is the sub-expression function that generates the character or its string to be included, and the second parameter is options.  
 The options means where the string of this inclusion relationship should be located before or after the initial value.
 
-( I'm not sure yet, but I might change my name. I don't want any confusion, so I'll change it as soon as possible. )
+( I'm not sure yet, but I might change method name. I don't want any confusion, so I'll change it as soon as possible. )
 
 The include method should only be used once per builder. If you want to use a second inclusion, sconsider and include.
 

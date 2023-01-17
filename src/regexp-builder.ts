@@ -21,6 +21,28 @@ export class RegExpBuilder {
             this.from(initialValue);
         }
     }
+    or(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
+    or(qb: (regExpBuilder: RegExpBuilder) => string): this;
+    or(partial: string): this;
+    or(partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
+        const from = this.step.find((el) => el.name === 'from');
+        let value: string = '';
+
+        if (typeof partial === 'string') {
+            value = partial;
+        } else {
+            const result = partial(new RegExpBuilder());
+            if (typeof result === 'string') {
+                value = result;
+            } else {
+                value = result.getRawOne();
+            }
+        }
+
+        from.value = `${from.value}|${value}`;
+
+        return this;
+    }
 
     and(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder, options?: AndOptions): this;
     and(qb: (regExpBuilder: RegExpBuilder) => string, options?: AndOptions): this;
