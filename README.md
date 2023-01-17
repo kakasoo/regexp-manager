@@ -84,7 +84,7 @@ const regexp = new RegExpBuilder('one')
 expect(regexp).toBe('threetwoone');
 ```
 
-The "and" method is responsible for modifying the initial value.  
+The `and` method is responsible for modifying the initial value.  
 When writing a initial value, it would be more readable to write it separately using the and method rather than writing it in a single line.
 
 ## or
@@ -110,7 +110,7 @@ const leftOrRight = new RegExpBuilder('left')
 expect(leftOrRight).toBe('left|right');
 ```
 
-The "or" method is responsible for modifying the initial value.  
+The `or` method is responsible for modifying the initial value.  
 When writing a initial value, it would be more readable to write it separately using the and method rather than writing it in a single line.
 
 ## join
@@ -124,6 +124,8 @@ const regexp = new RegExpBuilder()
 
 expect(regexp).toBe('one|two|three');
 ```
+
+the `join` method make from method easy.
 
 ## lessThanEqual (to be created)
 

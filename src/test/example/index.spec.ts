@@ -1,4 +1,4 @@
-import { RegExpBuilder } from '../../src/regexp-builder';
+import { RegExpBuilder } from '../../regexp-builder';
 
 describe('example of using include method', () => {
     // TODO : need to be implemented AND statment, OR statement
@@ -9,7 +9,7 @@ describe('example of using include method', () => {
 
     it('get only protocol such as "https"', () => {
         const regExp = new RegExpBuilder().from('https').include('://', { isForehead: false }).getOne();
-        const protocol = 'https://www.kakasoo.com/'.match(regExp).at(0);
+        const protocol = 'https://www.kakasoo.com/'.match(regExp)?.at(0);
 
         expect(protocol).toBe('https');
     });
