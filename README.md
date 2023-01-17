@@ -68,9 +68,50 @@ The include method should only be used once per builder. If you want to use a se
 
 ## whatever (to be created)
 
-## and (to be created)
+## and
+
+```typescript
+const leftHand = new RegExpBuilder('Hand').and('left', { isForehead: true }).getRawOne();
+expect(leftHand).toBe('leftHand');
+```
+
+```typescript
+const regexp = new RegExpBuilder('one')
+    .and((qb) => {
+        return qb.from('two').and('three').getRawOne();
+    })
+    .getRawOne();
+expect(regexp).toBe('threetwoone');
+```
+
+The "and" method is responsible for modifying the initial value.  
+When writing a initial value, it would be more readable to write it separately using the and method rather than writing it in a single line.
 
 ## or (to be created)
+
+```typescript
+const leftOrRight = new RegExpBuilder('left').or('right').getRawOne();
+expect(leftOrRight).toBe('left|right');
+```
+
+```typescript
+const leftOrRight = new RegExpBuilder('left')
+    .or((qb) => {
+        return qb
+            .from('r')
+            .and('i', { isForehead: false })
+            .and('g', { isForehead: false })
+            .and('h', { isForehead: false })
+            .and('t', { isForehead: false })
+            .getRawOne();
+    })
+    .getRawOne();
+
+expect(leftOrRight).toBe('left|right');
+```
+
+The "or" method is responsible for modifying the initial value.  
+When writing a initial value, it would be more readable to write it separately using the and method rather than writing it in a single line.
 
 ## lessThanEqual (to be created)
 

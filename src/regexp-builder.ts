@@ -24,6 +24,12 @@ export class RegExpBuilder {
     or(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
     or(qb: (regExpBuilder: RegExpBuilder) => string): this;
     or(partial: string): this;
+
+    /**
+     * or method set initial value to `${from.value}|${partial}`;
+     * @param partial
+     * @returns
+     */
     or(partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
         const from = this.step.find((el) => el.name === 'from');
         let value: string = '';
@@ -49,8 +55,9 @@ export class RegExpBuilder {
     and(partial: string, options?: AndOptions): this;
 
     /**
+     * and method set initial value to `${partial}${from.value}` OR `${from.value}${partial}`
      * @param partial words or phrases you want to add
-     * @returns `${partial}${from.value}` OR `${from.value}${partial}`
+     * @returns
      */
     and(
         partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder),
