@@ -2,14 +2,16 @@ import { RegExpBuilder } from '../regexp-builder';
 
 describe('check from method work correctly.', () => {
     it('from have to receive initial value ( = first parameter )', () => {
-        const current = new RegExpBuilder().from('from').currentExpression;
+        const current = new RegExpBuilder().from('from').getRawOne();
         expect(current).toBe('from');
     });
 
     it('from paramter can be subRegExpBuilder', async () => {
-        const current = new RegExpBuilder().from((qb) => {
-            return qb.from('from').currentExpression;
-        }).currentExpression;
+        const current = new RegExpBuilder()
+            .from((qb) => {
+                return qb.from('from').getRawOne();
+            })
+            .getRawOne();
 
         expect(current).toBe('from');
     });

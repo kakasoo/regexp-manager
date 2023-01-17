@@ -22,13 +22,6 @@ export class RegExpBuilder {
         }
     }
 
-    /**
-     * return current's expression
-     */
-    get currentExpression() {
-        return this.execute();
-    }
-
     and(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder, options?: AndOptions): this;
     and(qb: (regExpBuilder: RegExpBuilder) => string, options?: AndOptions): this;
     and(partial: string, options?: AndOptions): this;
@@ -60,16 +53,16 @@ export class RegExpBuilder {
     /**
      * @param qb function return string type which is sub-expression
      */
-    from(qb: (regExpBuilder: RegExpBuilder) => string): this;
+    from<T>(qb: (regExpBuilder: RegExpBuilder) => T): this;
 
     /**
      *
      * @param initialValue sub-expression
      */
-    from(initialValue: string): this;
-    from(initialValue: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
-        const beforeStatus = this.currentExpression;
-        let value: string;
+    from<T>(initialValue: T): this;
+    from<T extends string>(initialValue: T | ((qb: RegExpBuilder) => T | RegExpBuilder)): this {
+        const beforeStatus = this.getRawOne();
+        let value: T;
         if (typeof initialValue === 'string') {
             value = initialValue;
         } else {
@@ -77,7 +70,7 @@ export class RegExpBuilder {
             if (typeof result === 'string') {
                 value = result;
             } else {
-                value = result.currentExpression;
+                value = result.getRawOne() as T;
             }
         }
 
@@ -97,7 +90,7 @@ export class RegExpBuilder {
      * @returns `(${string})?`
      */
     whatever() {
-        const beforeStatus = this.currentExpression;
+        const beforeStatus = this.getRawOne();
 
         this.pushStatus({
             name: 'whatever',
@@ -115,7 +108,7 @@ export class RegExpBuilder {
      * @returns `(${string})?`
      */
     isOptional() {
-        const beforeStatus = this.currentExpression;
+        const beforeStatus = this.getRawOne();
 
         this.pushStatus({
             name: 'isOptional',
@@ -180,7 +173,7 @@ export class RegExpBuilder {
     include(partial: string, options?: IncludeOptions): this;
     include(partial: string | ((qb: RegExpBuilder) => string), options: IncludeOptions = { isForehead: true }) {
         let value: string;
-        const beforeStatus = this.currentExpression;
+        const beforeStatus = this.getRawOne();
 
         if (typeof partial === 'string') {
             value = partial;
@@ -200,7 +193,7 @@ export class RegExpBuilder {
     }
 
     lessThanEqual(maximum: number) {
-        const beforeStatus = this.currentExpression;
+        const beforeStatus = this.getRawOne();
         this.maximum = maximum;
 
         this.pushStatus({
