@@ -1,4 +1,5 @@
 type IncludeOptions = { isForehead?: boolean };
+type AndOptions = { isForehead?: boolean };
 
 type Status<T = keyof typeof RegExpBuilder.prototype> = {
     name: T;
@@ -28,12 +29,24 @@ export class RegExpBuilder {
         return this.execute();
     }
 
-    and(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
-    and(qb: (regExpBuilder: RegExpBuilder) => string): this;
-    and(partial: string): this;
-    and(partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
+    and(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder, options?: AndOptions): this;
+    and(qb: (regExpBuilder: RegExpBuilder) => string, options?: AndOptions): this;
+    and(partial: string, options?: AndOptions): this;
+
+    /**
+     * @param partial words or phrases you want to add
+     * @returns `${partial}${from.value}` OR `${from.value}${partial}`
+     */
+    and(
+        partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder),
+        options: AndOptions = { isForehead: true },
+    ): this {
         const from = this.step.find((el) => el.name === 'from');
-        from.value = `${partial}${from.value}`;
+        if (options?.isForehead === true) {
+            from.value = `${partial}${from.value}`;
+        } else {
+            from.value = `${from.value}${partial}`;
+        }
         return this;
     }
 
@@ -156,7 +169,7 @@ export class RegExpBuilder {
      * @param partial sub-regular expression builder that returns a string
      * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
      */
-    include(partial: (qb: RegExpBuilder) => string, options?: { isForehead?: boolean }): this;
+    include(partial: (qb: RegExpBuilder) => string, options?: IncludeOptions): this;
 
     /**
      * Specifies the string that must be included before and after the current expression.
@@ -164,11 +177,8 @@ export class RegExpBuilder {
      * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
      * @returns
      */
-    include(partial: string, options?: { isForehead?: boolean }): this;
-    include(
-        partial: string | ((qb: RegExpBuilder) => string),
-        options: { isForehead?: boolean } = { isForehead: true },
-    ) {
+    include(partial: string, options?: IncludeOptions): this;
+    include(partial: string | ((qb: RegExpBuilder) => string), options: IncludeOptions = { isForehead: true }) {
         let value: string;
         const beforeStatus = this.currentExpression;
 

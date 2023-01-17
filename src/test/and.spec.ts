@@ -5,4 +5,9 @@ describe('check "and" method work correctly.', () => {
         const leftHand = new RegExpBuilder('Hand').and('left').getRawOne();
         expect(leftHand).toBe('leftHand');
     });
+
+    it('of course, it should be able to be added to the right as well.', async () => {
+        const rightHand = new RegExpBuilder('right').and('Hand', { isForehead: false }).getRawOne();
+        expect(rightHand).toBe('rightHand');
+    });
 });
