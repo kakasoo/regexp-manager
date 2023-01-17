@@ -17,7 +17,12 @@
         "type": "git",
         "url": "git+https://github.com/kakasoo/regexp-manager"
     },
-    "keywords": [],
+    "keywords": [
+        "regexp",
+        "bilder",
+        "regular",
+        "expression"
+    ],
     "author": "kakasoo <kscodebase@gmail.com>",
     "license": "ISC",
     "bugs": {
