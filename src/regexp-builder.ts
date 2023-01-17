@@ -21,8 +21,9 @@ export class RegExpBuilder {
             this.from(initialValue);
         }
     }
-    or(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
-    or(qb: (regExpBuilder: RegExpBuilder) => string): this;
+
+    or(subBuilder: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
+    or(subBuilder: (regExpBuilder: RegExpBuilder) => string): this;
     or(partial: string): this;
 
     /**
@@ -30,7 +31,7 @@ export class RegExpBuilder {
      * @param partial
      * @returns
      */
-    or(partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder)): this {
+    or(partial: string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder)): this {
         const from = this.step.find((el) => el.name === 'from');
         let value: string = '';
 
@@ -50,8 +51,8 @@ export class RegExpBuilder {
         return this;
     }
 
-    and(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder, options?: AndOptions): this;
-    and(qb: (regExpBuilder: RegExpBuilder) => string, options?: AndOptions): this;
+    and(subBuilder: (regExpBuilder: RegExpBuilder) => RegExpBuilder, options?: AndOptions): this;
+    and(subBuilder: (regExpBuilder: RegExpBuilder) => string, options?: AndOptions): this;
     and(partial: string, options?: AndOptions): this;
 
     /**
@@ -60,7 +61,7 @@ export class RegExpBuilder {
      * @returns
      */
     and(
-        partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder),
+        partial: string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder),
         options: AndOptions = { isForehead: true },
     ): this {
         const from = this.step.find((el) => el.name === 'from');
@@ -91,19 +92,19 @@ export class RegExpBuilder {
      * return the current expression if someone return a non-string value.
      * @param qb function return RegExpBuilder
      */
-    from(qb: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
+    from(subBuilder: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
 
     /**
      * @param qb function return string type which is sub-expression
      */
-    from<T>(qb: (regExpBuilder: RegExpBuilder) => T): this;
+    from<T>(subBuilder: (regExpBuilder: RegExpBuilder) => T): this;
 
     /**
      *
      * @param initialValue sub-expression
      */
     from<T>(initialValue: T): this;
-    from<T extends string>(initialValue: T | ((qb: RegExpBuilder) => T | RegExpBuilder)): this {
+    from<T extends string>(initialValue: T | ((subBuilder: RegExpBuilder) => T | RegExpBuilder)): this {
         const beforeStatus = this.getRawOne();
         let value: T;
         if (typeof initialValue === 'string') {
@@ -168,7 +169,7 @@ export class RegExpBuilder {
      * @param partial sub-regular expression builder that returns a string
      * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
      */
-    andInclude(partial: (qb: RegExpBuilder) => string, options?: { isForehead?: boolean }): this;
+    andInclude(partial: (subBuilder: RegExpBuilder) => string, options?: { isForehead?: boolean }): this;
 
     /**
      * Specifies the string that must be included before and after the current expression.
@@ -178,7 +179,7 @@ export class RegExpBuilder {
      */
     andInclude(partial: string, options?: { isForehead?: boolean }): this;
     andInclude(
-        partial: string | ((qb: RegExpBuilder) => string),
+        partial: string | ((subBuilder: RegExpBuilder) => string),
         options: { isForehead?: boolean } = { isForehead: true },
     ) {
         let value: string;
@@ -204,13 +205,13 @@ export class RegExpBuilder {
      * @param partial A function returns RegExpBuilder instance to prevent making human error
      * @param options
      */
-    include(partial: (qb: RegExpBuilder) => RegExpBuilder, options?: IncludeOptions): this;
+    include(partial: (subBuilder: RegExpBuilder) => RegExpBuilder, options?: IncludeOptions): this;
 
     /**
      * @param partial sub-regular expression builder that returns a string
      * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
      */
-    include(partial: (qb: RegExpBuilder) => string, options?: IncludeOptions): this;
+    include(partial: (subBuilder: RegExpBuilder) => string, options?: IncludeOptions): this;
 
     /**
      * Specifies the string that must be included before and after the current expression.
@@ -220,7 +221,7 @@ export class RegExpBuilder {
      */
     include(partial: string, options?: IncludeOptions): this;
     include(
-        partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder),
+        partial: string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder),
         options: IncludeOptions = { isForehead: true },
     ) {
         let value: string;
