@@ -113,7 +113,17 @@ expect(leftOrRight).toBe('left|right');
 The "or" method is responsible for modifying the initial value.  
 When writing a initial value, it would be more readable to write it separately using the and method rather than writing it in a single line.
 
-## join (to be created)
+## join
+
+```typescript
+const regexp = new RegExpBuilder()
+    .from((qb) => {
+        return qb.join([(qb) => qb.from('one'), qb.from('two').getRawOne(), 'three'], '|');
+    })
+    .getRawOne();
+
+expect(regexp).toBe('one|two|three');
+```
 
 ## lessThanEqual (to be created)
 

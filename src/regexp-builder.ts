@@ -22,32 +22,30 @@ export class RegExpBuilder {
         }
     }
 
+    /**
+     * The `join` method create and returns a new string ( = pattern ) by concatenating all of the elements,
+     * like as array.prototype.join
+     * @param partial string (=pattern) or sub-expression
+     * @param separator
+     */
+    join(partials: (string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder))[], separator: string = '') {
+        return partials.map((partial) => this.slove(partial)).join(separator);
+    }
+
     or(subBuilder: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
     or(subBuilder: (regExpBuilder: RegExpBuilder) => string): this;
     or(partial: string): this;
 
     /**
      * or method set initial value to `${from.value}|${partial}`;
-     * @param partial
+     * @param partial string (=pattern) or sub-expression
      * @returns
      */
     or(partial: string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder)): this {
         const from = this.step.find((el) => el.name === 'from');
-        let value: string = '';
-
-        if (typeof partial === 'string') {
-            value = partial;
-        } else {
-            const result = partial(new RegExpBuilder());
-            if (typeof result === 'string') {
-                value = result;
-            } else {
-                value = result.getRawOne();
-            }
-        }
+        const value: string = this.slove(partial);
 
         from.value = `${from.value}|${value}`;
-
         return this;
     }
 
@@ -57,7 +55,7 @@ export class RegExpBuilder {
 
     /**
      * and method set initial value to `${partial}${from.value}` OR `${from.value}${partial}`
-     * @param partial words or phrases you want to add
+     * @param partial  string (=pattern) or sub-expression / words or phrases you want to add
      * @returns
      */
     and(
@@ -65,18 +63,7 @@ export class RegExpBuilder {
         options: AndOptions = { isForehead: true },
     ): this {
         const from = this.step.find((el) => el.name === 'from');
-        let value: string = '';
-
-        if (typeof partial === 'string') {
-            value = partial;
-        } else {
-            const result = partial(new RegExpBuilder());
-            if (typeof result === 'string') {
-                value = result;
-            } else {
-                value = result.getRawOne();
-            }
-        }
+        const value: string = this.slove(partial);
 
         if (options?.isForehead === true) {
             from.value = `${value}${from.value}`;
@@ -106,17 +93,7 @@ export class RegExpBuilder {
     from<T>(initialValue: T): this;
     from<T extends string>(initialValue: T | ((subBuilder: RegExpBuilder) => T | RegExpBuilder)): this {
         const beforeStatus = this.getRawOne();
-        let value: T;
-        if (typeof initialValue === 'string') {
-            value = initialValue;
-        } else {
-            const result = initialValue(new RegExpBuilder());
-            if (typeof result === 'string') {
-                value = result;
-            } else {
-                value = result.getRawOne() as T;
-            }
-        }
+        const value: T = this.slove(initialValue) as T;
 
         this.pushStatus({
             name: 'from',
@@ -182,15 +159,7 @@ export class RegExpBuilder {
         partial: string | ((subBuilder: RegExpBuilder) => string),
         options: { isForehead?: boolean } = { isForehead: true },
     ) {
-        let value: string;
-
-        if (typeof partial === 'string') {
-            value = partial;
-        } else if (typeof partial === 'function') {
-            const subRegExp = partial(new RegExpBuilder());
-            value = subRegExp;
-        }
-
+        const value: string = this.slove(partial);
         const includeStatement = this.step.find(
             (el) => el.name === 'include' && el.options.isForehead === options.isForehead,
         );
@@ -215,7 +184,7 @@ export class RegExpBuilder {
 
     /**
      * Specifies the string that must be included before and after the current expression.
-     * @param partial string to be included but not captured.
+     * @param partial  string (=pattern) or sub-expression / string to be included but not captured.
      * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
      * @returns
      */
@@ -224,19 +193,8 @@ export class RegExpBuilder {
         partial: string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder),
         options: IncludeOptions = { isForehead: true },
     ) {
-        let value: string;
         const beforeStatus = this.getRawOne();
-
-        if (typeof partial === 'string') {
-            value = partial;
-        } else if (typeof partial === 'function') {
-            const result = partial(new RegExpBuilder());
-            if (typeof result === 'string') {
-                value = result;
-            } else {
-                value = result.getRawOne();
-            }
-        }
+        const value: string = this.slove(partial);
 
         this.pushStatus({
             name: 'include',
@@ -275,6 +233,22 @@ export class RegExpBuilder {
         let expression = this.execute();
 
         return expression;
+    }
+
+    /**
+     * A function that unravels a subBuilder and converts it all intro a string.
+     */
+    private slove(target: string | ((subBulder: RegExpBuilder) => string | RegExpBuilder)) {
+        if (typeof target === 'string') {
+            return target;
+        } else {
+            const result = target(new RegExpBuilder());
+            if (typeof result === 'string') {
+                return result;
+            } else {
+                return result.getRawOne();
+            }
+        }
     }
 
     /**
