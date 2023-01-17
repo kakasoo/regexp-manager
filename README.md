@@ -87,7 +87,7 @@ expect(regexp).toBe('threetwoone');
 The "and" method is responsible for modifying the initial value.  
 When writing a initial value, it would be more readable to write it separately using the and method rather than writing it in a single line.
 
-## or (to be created)
+## or
 
 ```typescript
 const leftOrRight = new RegExpBuilder('left').or('right').getRawOne();
