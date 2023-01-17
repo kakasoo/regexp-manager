@@ -158,7 +158,12 @@ export class RegExpBuilder {
     }
 
     /**
-     *
+     * @param partial A function returns RegExpBuilder instance to prevent making human error
+     * @param options
+     */
+    include(partial: (qb: RegExpBuilder) => RegExpBuilder, options?: IncludeOptions): this;
+
+    /**
      * @param partial sub-regular expression builder that returns a string
      * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
      */
@@ -171,15 +176,22 @@ export class RegExpBuilder {
      * @returns
      */
     include(partial: string, options?: IncludeOptions): this;
-    include(partial: string | ((qb: RegExpBuilder) => string), options: IncludeOptions = { isForehead: true }) {
+    include(
+        partial: string | ((qb: RegExpBuilder) => string | RegExpBuilder),
+        options: IncludeOptions = { isForehead: true },
+    ) {
         let value: string;
         const beforeStatus = this.getRawOne();
 
         if (typeof partial === 'string') {
             value = partial;
         } else if (typeof partial === 'function') {
-            const subRegExp = partial(new RegExpBuilder());
-            value = subRegExp;
+            const result = partial(new RegExpBuilder());
+            if (typeof result === 'string') {
+                value = result;
+            } else {
+                value = result.getRawOne();
+            }
         }
 
         this.pushStatus({
