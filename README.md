@@ -47,7 +47,7 @@ Returns regexp instances based on methods written so far.
 Returns string based on methods written so far.  
 You can use this as the first parameter of the regular expression constructor.
 
-## include method
+## include & andInclude
 
 ```typescript
 /**
@@ -56,11 +56,30 @@ You can use this as the first parameter of the regular expression constructor.
 const includeRegExp = new RegExpBuilder().from('test').include('forehead', { isForehead: true }).getOne();
 ```
 
+```typescript
+const includeRegExp = new RegExpBuilder()
+    .from('test')
+    .include('[0-9]+', { isForehead: true })
+    .andInclude('[a-z]+', { isForehead: true })
+    .getOne();
+
+const res = 'cat123test'.match(includeRegExp)?.at(0);
+expect(res).toBe('test');
+```
+
+```typescript
+/**
+ * return : `(cat is behind of )(?=(dog))`
+ */
+const includeRegExp = new RegExpBuilder().from('cat is behind of ').include('dog', { isForehead: false }).getOne();
+
+const res = 'cat is behind of dog'.match(includeRegExp)?.at(0);
+expect(res).toBe('cat is behind of ');
+```
+
 The include method is a method that contains a string that is not included in a capture group.  
 The first parameter of the include method is the sub-expression function that generates the character or its string to be included, and the second parameter is options.  
 The options means where the string of this inclusion relationship should be located before or after the initial value.
-
-( I'm not sure yet, but I might change method name. I don't want any confusion, so I'll change it as soon as possible. )
 
 The include method should only be used once per builder. If you want to use a second inclusion, sconsider and include.
 

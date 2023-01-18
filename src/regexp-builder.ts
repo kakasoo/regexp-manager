@@ -1,17 +1,17 @@
 type IncludeOptions = { isForehead?: boolean };
 type AndOptions = { isForehead?: boolean };
+type subExpressionBilder = (subBuilder: RegExpBuilder) => string | RegExpBuilder;
 
 type Status<T = keyof typeof RegExpBuilder.prototype> = {
     name: T;
     value: string;
-    options: T extends 'include' ? IncludeOptions : null;
+    options: T extends 'include' ? IncludeOptions : T extends 'and' ? AndOptions : null;
     beforeStatus: string;
     order: number;
 };
 
 export class RegExpBuilder {
     private flag: 'g' | 'i' | 'ig' | 'm';
-    private expression: string;
     private minimum?: number;
     private maximum?: number;
     private step: Array<Status>;
@@ -28,7 +28,7 @@ export class RegExpBuilder {
      * @param partial string (=pattern) or sub-expression
      * @param separator
      */
-    join(partials: (string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder))[], separator: string = '') {
+    join(partials: (string | subExpressionBilder)[], separator: string = '') {
         return partials.map((partial) => this.slove(partial)).join(separator);
     }
 
@@ -41,7 +41,7 @@ export class RegExpBuilder {
      * @param partial string (=pattern) or sub-expression
      * @returns
      */
-    or(partial: string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder)): this {
+    or(partial: string | subExpressionBilder): this {
         const from = this.step.find((el) => el.name === 'from');
         const value: string = this.slove(partial);
 
@@ -58,10 +58,7 @@ export class RegExpBuilder {
      * @param partial  string (=pattern) or sub-expression / words or phrases you want to add
      * @returns
      */
-    and(
-        partial: string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder),
-        options: AndOptions = { isForehead: true },
-    ): this {
+    and(partial: string | subExpressionBilder, options: AndOptions = { isForehead: true }): this {
         const from = this.step.find((el) => el.name === 'from');
         const value: string = this.slove(partial);
 
@@ -189,10 +186,7 @@ export class RegExpBuilder {
      * @returns
      */
     include(partial: string, options?: IncludeOptions): this;
-    include(
-        partial: string | ((subBuilder: RegExpBuilder) => string | RegExpBuilder),
-        options: IncludeOptions = { isForehead: true },
-    ) {
+    include(partial: string | subExpressionBilder, options: IncludeOptions = { isForehead: true }) {
         const beforeStatus = this.getRawOne();
         const value: string = this.slove(partial);
 
@@ -276,7 +270,7 @@ export class RegExpBuilder {
      * @param second string (to catch)
      * @returns `(${symbol}(${first}))(${second})`
      */
-    private lookbehind(first: string, second: string): `(?<=(${string}))(${string})` {
+    private lookbehind<T extends string, P extends string>(first: T, second: P): `(?<=(${T}))(${P})` {
         const symbol = '?<=';
         return `(${symbol}(${first}))(${second})`;
     }
