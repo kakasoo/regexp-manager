@@ -1,6 +1,6 @@
 type IncludeOptions = { isForehead?: boolean };
 type AndOptions = { isForehead?: boolean };
-type subExpressionBilder = (subBuilder: RegExpBuilder) => string | RegExpBuilder;
+type SubExpressionBilder<T extends string = string> = (subBuilder: RegExpBuilder) => T | RegExpBuilder;
 
 type Status<T = keyof typeof RegExpBuilder.prototype> = {
     name: T;
@@ -28,7 +28,7 @@ export class RegExpBuilder {
      * @param partial string (=pattern) or sub-expression
      * @param separator
      */
-    join(partials: (string | subExpressionBilder)[], separator: string = '') {
+    join(partials: (string | SubExpressionBilder)[], separator: string = '') {
         return partials.map((partial) => this.slove(partial)).join(separator);
     }
 
@@ -41,7 +41,7 @@ export class RegExpBuilder {
      * @param partial string (=pattern) or sub-expression
      * @returns
      */
-    or(partial: string | subExpressionBilder): this {
+    or(partial: string | SubExpressionBilder): this {
         const from = this.step.find((el) => el.name === 'from');
         const value: string = this.slove(partial);
 
@@ -58,7 +58,7 @@ export class RegExpBuilder {
      * @param partial  string (=pattern) or sub-expression / words or phrases you want to add
      * @returns
      */
-    and(partial: string | subExpressionBilder, options: AndOptions = { isForehead: true }): this {
+    and(partial: string | SubExpressionBilder, options: AndOptions = { isForehead: true }): this {
         const from = this.step.find((el) => el.name === 'from');
         const value: string = this.slove(partial);
 
@@ -193,7 +193,7 @@ export class RegExpBuilder {
      * @returns
      */
     include(partial: string, options?: IncludeOptions): this;
-    include(partial: string | subExpressionBilder, options: IncludeOptions = { isForehead: true }) {
+    include(partial: string | SubExpressionBilder, options: IncludeOptions = { isForehead: true }) {
         const beforeStatus = this.getRawOne();
         const value: string = this.slove(partial);
 
@@ -253,7 +253,7 @@ export class RegExpBuilder {
     /**
      * A function that unravels a subBuilder and converts it all intro a string.
      */
-    private slove(target: string | ((subBulder: RegExpBuilder) => string | RegExpBuilder)) {
+    private slove(target: string | SubExpressionBilder) {
         if (typeof target === 'string') {
             return target;
         } else {
