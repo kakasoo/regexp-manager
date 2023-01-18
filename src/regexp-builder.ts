@@ -90,6 +90,13 @@ export class RegExpBuilder {
     from<T>(initialValue: T): this;
     from<T extends string>(initialValue: T | ((subBuilder: RegExpBuilder) => T | RegExpBuilder)): this {
         const beforeStatus = this.getRawOne();
+        if (beforeStatus) {
+            throw new Error(
+                `already used from method\n` +
+                    `If you have already specified an initial value for the constructor or from method, it is no longer available.\n` +
+                    `The builder has only one initial value.\n`,
+            );
+        }
         const value: T = this.slove(initialValue) as T;
 
         this.pushStatus({
