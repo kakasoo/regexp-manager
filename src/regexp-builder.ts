@@ -214,6 +214,20 @@ export class RegExpBuilder {
         return this;
     }
 
+    moreThanEqual(minimum: number) {
+        const beforeStatus = this.getRawOne();
+        this.minimum = minimum;
+
+        this.pushStatus({
+            name: 'moreThanEqual',
+            value: minimum.toString(),
+            options: null,
+            beforeStatus: beforeStatus,
+            order: 3,
+        } as const);
+        return this;
+    }
+
     /**
      * Generates a regular expression instance based on what has been set up so far.
      * @returns RegExp (default flag is 'ig')
@@ -260,7 +274,7 @@ export class RegExpBuilder {
      * @param second lookaround(?=) string
      * @return `(${first})(${symbol}(${second}))`
      */
-    private lookaround(first: string, second: string): `(${string})(?=(${string}))` {
+    private lookaround<T extends string, P extends string>(first: T, second: P): `(${T})(?=(${P}))` {
         const symbol = '?=';
         return `(${first})(${symbol}(${second}))`;
     }
@@ -292,6 +306,17 @@ export class RegExpBuilder {
                         return this.lookaround(acc, value);
                     }
                 } else if (name === 'lessThanEqual') {
+                    if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
+                        // more than equal minimum, less thean equal maximum
+                        return `${acc}{${this.minimum}, ${this.maximum}}`;
+                    } else if (typeof this.minimum === 'number') {
+                        // more than equal minimum
+                        return `${acc}{${this.minimum},}`;
+                    } else if (typeof this.maximum === 'number') {
+                        // more than equal 1, less thean equal maximum
+                        return `${acc}{1,${this.maximum}}`;
+                    }
+                } else if (name === 'moreThanEqual') {
                     if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
                         // more than equal minimum, less thean equal maximum
                         return `${acc}{${this.minimum}, ${this.maximum}}`;

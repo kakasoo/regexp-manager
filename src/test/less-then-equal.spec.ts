@@ -1,6 +1,6 @@
 import { RegExpBuilder } from '../regexp-builder';
 
-describe('lessThan', () => {
+describe('lessThanEqual', () => {
     it('1. string "a" but lessThanEqual 3', () => {
         const regExp = new RegExpBuilder().from('a').lessThanEqual(3).getOne();
         expect('a'.match(regExp)?.at(0) === 'a').toBe(true);
