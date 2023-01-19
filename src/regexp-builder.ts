@@ -1,6 +1,7 @@
 type IncludeOptions = { isForehead?: boolean };
 type AndOptions = { isForehead?: boolean };
-type SubExpressionBilder<T extends string = string> = (subBuilder: RegExpBuilder) => T | RegExpBuilder;
+type SubExpressionBilder<T extends string> = (subBuilder: RegExpBuilder) => T | string | RegExpBuilder;
+type Push<T extends any[], val> = [...T, val];
 
 type Status<T = keyof typeof RegExpBuilder.prototype> = {
     name: T;
@@ -15,6 +16,12 @@ export class RegExpBuilder {
     private minimum?: number;
     private maximum?: number;
     private step: Array<Status>;
+
+    /**
+     * It is designed to infer types. maybe.
+     */
+    // private expression: string = '';
+
     constructor(initialValue: string = '') {
         this.step = [];
         if (initialValue) {
@@ -28,7 +35,7 @@ export class RegExpBuilder {
      * @param partial string (=pattern) or sub-expression
      * @param separator
      */
-    join(partials: (string | SubExpressionBilder)[], separator: string = '') {
+    join<T extends string>(partials: (string | SubExpressionBilder<T>)[], separator: string = '') {
         return partials.map((partial) => this.slove(partial)).join(separator);
     }
 
@@ -41,7 +48,7 @@ export class RegExpBuilder {
      * @param partial string (=pattern) or sub-expression
      * @returns
      */
-    or(partial: string | SubExpressionBilder): this {
+    or<T extends string>(partial: string | SubExpressionBilder<T>): this {
         const from = this.step.find((el) => el.name === 'from');
         const value: string = this.slove(partial);
 
@@ -58,7 +65,7 @@ export class RegExpBuilder {
      * @param partial  string (=pattern) or sub-expression / words or phrases you want to add
      * @returns
      */
-    and(partial: string | SubExpressionBilder, options: AndOptions = { isForehead: true }): this {
+    and<T extends string>(partial: string | SubExpressionBilder<T>, options: AndOptions = { isForehead: true }): this {
         const from = this.step.find((el) => el.name === 'from');
         const value: string = this.slove(partial);
 
@@ -88,7 +95,7 @@ export class RegExpBuilder {
      * @param initialValue sub-expression
      */
     from<T>(initialValue: T): this;
-    from<T extends string>(initialValue: T | ((subBuilder: RegExpBuilder) => T | RegExpBuilder)): this {
+    from<T extends string>(initialValue: T | SubExpressionBilder<T>): this {
         const beforeStatus = this.getRawOne();
         if (beforeStatus) {
             throw new Error(
@@ -97,7 +104,7 @@ export class RegExpBuilder {
                     `The builder has only one initial value.\n`,
             );
         }
-        const value: T = this.slove(initialValue) as T;
+        const value: T | string = this.slove(initialValue);
 
         this.pushStatus({
             name: 'from',
@@ -193,7 +200,10 @@ export class RegExpBuilder {
      * @returns
      */
     include(partial: string, options?: IncludeOptions): this;
-    include(partial: string | SubExpressionBilder, options: IncludeOptions = { isForehead: true }) {
+    include<T extends string>(
+        partial: string | SubExpressionBilder<T>,
+        options: IncludeOptions = { isForehead: true },
+    ) {
         const beforeStatus = this.getRawOne();
         const value: string = this.slove(partial);
 
@@ -253,7 +263,7 @@ export class RegExpBuilder {
     /**
      * A function that unravels a subBuilder and converts it all intro a string.
      */
-    private slove(target: string | SubExpressionBilder) {
+    private slove<T extends string>(target: T | SubExpressionBilder<T>): T | string {
         if (typeof target === 'string') {
             return target;
         } else {
