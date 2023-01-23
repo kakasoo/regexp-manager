@@ -21,12 +21,12 @@ export class RegExpBuilder {
 
     findOne<T extends string>({
         from,
-        include = [],
+        include,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        include?: IncludeOptions[];
+        include?: IncludeOptions; // TODO : approve array of include's options
         lessThanEqual?: number;
         moreThanEqual?: number;
     }) {
@@ -227,6 +227,11 @@ export class RegExpBuilder {
         return this;
     }
 
+    /**
+     * set minimum, maximum value to repeat regexp pattern
+     * If between methods are present, `lessThanEqual`, `moreThanEqual` methods in the builder are ignored,
+     * and if between is already present, throw errors.
+     */
     between(minimum: number, maximum: number): this {
         const beforeStatus = this.getRawOne();
 
@@ -263,6 +268,10 @@ export class RegExpBuilder {
         return this;
     }
 
+    /**
+     * set maximum value to repeat regexp pattern
+     * If lessThanEqual methods are present, throw errors.
+     */
     lessThanEqual(maximum: number): this {
         const beforeStatus = this.getRawOne();
         if (this.step.some((el) => el.name === 'lessThanEqual')) {
@@ -304,6 +313,9 @@ export class RegExpBuilder {
         }
     }
 
+    /**
+     * set minimum value to repeat regexp pattern
+     */
     moreThanEqual(minimum: number): this {
         const beforeStatus = this.getRawOne();
         if (this.step.some((el) => el.name === 'lessThanEqual')) {
