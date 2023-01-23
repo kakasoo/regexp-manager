@@ -146,7 +146,61 @@ expect(regexp).toBe('one|two|three');
 
 the `join` method make from method easy.
 
-## lessThanEqual (to be created)
+## lessThanEqual
+
+```typescript
+it('1. string "cat" but lessThanEqual 3', () => {
+    // If you don't set maximum value, it will be empty string.
+    // regExp: /(cat){3,}/gi
+    const regExp = new RegExpBuilder().from('(cat)').lessThanEqual(3).getOne();
+
+    expect('cat'.match(regExp)?.at(0) === 'cat').toBe(true);
+    expect('catcat'.match(regExp)?.at(0) === 'catcat').toBe(true);
+    expect('catcatcat'.match(regExp)?.at(0) === 'catcatcat').toBe(true);
+
+    expect('catcatcatcat'.match(regExp)?.at(0) === 'catcatcat').toBe(true);
+    expect('catcatcatcat'.match(regExp)?.at(0) === 'catcatcatcat').toBe(false);
+});
+```
+
+## moreThanEqual
+
+```typescript
+it('1. string "cat" but moreThanEqual 3', () => {
+    // If you don't set minimum value, it will be 1.
+    // regExp: /(cat){1,3}/gi
+    const regExp = new RegExpBuilder().from('(cat)').moreThanEqual(3).getOne();
+
+    expect('cat'.match(regExp)?.at(0) === 'cat').toBe(false);
+    expect('catcat'.match(regExp)?.at(0) === 'catcat').toBe(false);
+    expect('catcatcat'.match(regExp)?.at(0) === 'catcatcat').toBe(true);
+
+    expect('catcatcatcat'.match(regExp)?.at(0) === 'catcatcatcat').toBe(true);
+    expect('catcatcatcat'.match(regExp)?.at(0) === 'catcatcatcat').toBe(true);
+});
+```
+
+## between
+
+```typescript
+it('1. string "cat" but lessThanEqual 3', () => {
+    const pattern1 = new RegExpBuilder().from('(cat)').lessThanEqual(3).moreThanEqual(3).getRawOne();
+    const pattern2 = new RegExpBuilder().from('(cat)').between(3, 3).getRawOne();
+
+    // (cat){3, 3}
+    expect(pattern1).toBe(pattern2);
+});
+```
+
+# order by execution
+
+1. from ( or constructor )
+2. whatever, isoptional
+3. include
+4. lessThanEqual, moreThanEqual, between
+
+No matter how you write RegExpBuilder's method, the order of the methods is enforced.  
+This is to ensure action.
 
 # sub-expression
 

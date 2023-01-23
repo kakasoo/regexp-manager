@@ -227,39 +227,19 @@ export class RegExpBuilder {
         return this;
     }
 
-    between(minimum: number, maximum: number) {
+    between(minimum: number, maximum: number): this {
         const beforeStatus = this.getRawOne();
 
         const lessThanEquaStatement = this.step.some((el) => el.name === 'lessThanEqual');
         if (lessThanEquaStatement) {
             const lessThanEqualStatementIndex = this.step.findIndex((el) => el.name === 'lessThanEqual');
-            const lessThanEqualValue = this.step.at(lessThanEqualStatementIndex).value as number;
             this.step.splice(lessThanEqualStatementIndex, 1);
-            const betweenStatus: Status<'between'> = {
-                name: 'between',
-                value: [minimum, lessThanEqualValue],
-                options: null,
-                beforeStatus: beforeStatus,
-                order: 3,
-            };
-            this.pushStatus('between', betweenStatus);
-            return this;
         }
 
         const moreThanEqualStatement = this.step.some((el) => el.name === 'moreThanEqual');
         if (moreThanEqualStatement) {
             const moreThanEqualStatementIndex = this.step.findIndex((el) => el.name === 'moreThanEqual');
-            const moreThanEqualValue = this.step.at(moreThanEqualStatementIndex).value as number;
             this.step.splice(moreThanEqualStatementIndex, 1);
-            const betweenStatus: Status<'between'> = {
-                name: 'between',
-                value: [moreThanEqualValue, maximum],
-                options: null,
-                beforeStatus: beforeStatus,
-                order: 3,
-            };
-            this.pushStatus('between', betweenStatus);
-            return this;
         }
 
         const betweenStatement = this.step.some((el) => el.name === 'between');
@@ -283,7 +263,7 @@ export class RegExpBuilder {
         return this;
     }
 
-    lessThanEqual(maximum: number) {
+    lessThanEqual(maximum: number): this {
         const beforeStatus = this.getRawOne();
         if (this.step.some((el) => el.name === 'lessThanEqual')) {
             throw new Error(
@@ -324,7 +304,7 @@ export class RegExpBuilder {
         }
     }
 
-    moreThanEqual(minimum: number) {
+    moreThanEqual(minimum: number): this {
         const beforeStatus = this.getRawOne();
         if (this.step.some((el) => el.name === 'lessThanEqual')) {
             const lessThanEqualStatementIndex = this.step.findIndex((el) => el.name === 'lessThanEqual');
@@ -449,6 +429,11 @@ export class RegExpBuilder {
                     } else if (typeof this.maximum === 'number') {
                         // more than equal 1, less thean equal maximum
                         return `${acc}{1,${this.maximum}}`;
+                    }
+                } else if (name === 'between') {
+                    if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
+                        // more than equal minimum, less thean equal maximum
+                        return `${acc}{${this.minimum}, ${this.maximum}}`;
                     }
                 } else if (name === 'whatever') {
                     if (acc === '') {
