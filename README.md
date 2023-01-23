@@ -38,16 +38,16 @@ const regExp = new RegExpBuilder().from('initialValue').getOne(); // RegExp, sam
 If you want to create a more complex pattern, you can also write the `sub-expression` below.  
 All methods to be implemented in the future will be made all sub-expression possible.
 
-## getOne
+## getOne method
 
 Returns regexp instances based on methods written so far.
 
-## getRawOne
+## getRawOne method
 
 Returns string based on methods written so far.  
 You can use this as the first parameter of the regular expression constructor.
 
-## include & andInclude
+## include & andInclude method
 
 ```typescript
 /**
@@ -83,11 +83,11 @@ The options means where the string of this inclusion relationship should be loca
 
 The include method should only be used once per builder. If you want to use a second inclusion, sconsider and include.
 
-## isOptinonal (to be created)
+## isOptinonal method (incomplete)
 
-## whatever (to be created)
+## whatever method (incomplete)
 
-## and
+## and method
 
 ```typescript
 const leftHand = new RegExpBuilder('Hand').and('left', { isForehead: true }).getRawOne();
@@ -191,6 +191,23 @@ it('1. string "cat" but lessThanEqual 3', () => {
     expect(pattern1).toBe(pattern2);
 });
 ```
+
+# findOne method (incomplete)
+
+```typescript
+it('from method set initial value & include other', () => {
+    const test = new RegExpBuilder().findOne({
+        from: 'test',
+        include: { partial: 'left', options: {} },
+    });
+
+    expect(test).toBe('(test)(?=(left))');
+});
+```
+
+The test variable is deduced from type to `'(test)(?=(left))'`, without having to check whether it is `'(test)(?=(left))'`.  
+Therefore, the findOne method is useful when you immediately deduce and write a value, even if it may be less free than other RegExpBuilder methods.  
+now from and include method options available.
 
 # order by execution
 

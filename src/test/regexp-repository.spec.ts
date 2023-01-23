@@ -10,4 +10,15 @@ describe('Check regexp-builder is type-safe', () => {
             expect(test).toBe('test');
         });
     });
+
+    describe('from & include infer response type', () => {
+        it('from method set initial value & include other', () => {
+            const test = new RegExpBuilder().findOne({
+                from: 'test',
+                include: { partial: 'left', options: {} },
+            });
+
+            expect(test).toBe('(test)(?=(left))');
+        });
+    });
 });

@@ -1,6 +1,9 @@
 import { RegExpBuilder } from '../src/regexp-builder';
 
-type IncludeOptions = { isForehead?: boolean };
+// type IncludeOptionIsBehind = { isForehead?: true };
+// type IncludeOptionIsForehead = { isForehead?: true };
+
+type IncludeOptions<T extends boolean> = { isForehead?: T };
 type AndOptions = { isForehead?: boolean };
 type SubExpressionBilder<T extends string> = (subBuilder: RegExpBuilder) => T | string | RegExpBuilder;
 type Push<T extends any[], val> = [...T, val];
@@ -21,7 +24,7 @@ type Status<T extends RegExpMethodNames> = {
         : T extends 'lessThanEqual'
         ? number
         : string;
-    options: T extends 'include' ? IncludeOptions : T extends 'and' ? AndOptions : null;
+    options: T extends 'include' ? IncludeOptions<boolean> : T extends 'and' ? AndOptions : null;
     beforeStatus: string;
     order: number;
 };

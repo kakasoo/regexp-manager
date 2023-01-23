@@ -26,11 +26,62 @@ export class RegExpBuilder {
         moreThanEqual,
     }: {
         from: T;
-        include?: IncludeOptions; // TODO : approve array of include's options
+        include?: null;
+        lessThanEqual?: number;
+        moreThanEqual?: number;
+    }): T;
+    findOne<T extends string, P extends string>({
+        from,
+        include,
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include: { partial: P; options?: IncludeOptions<true> };
+        lessThanEqual?: number;
+        moreThanEqual?: number;
+    }): `(${T})(?=(${P}))`;
+    findOne<T extends string, P extends string>({
+        from,
+        include,
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include: { partial: P; options?: IncludeOptions<false> };
+        lessThanEqual?: number;
+        moreThanEqual?: number;
+    }): `(?<=(${P}))(${T})`;
+    findOne<T extends string, P extends string>({
+        from,
+        include,
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include: { partial: P; options?: IncludeOptions<boolean> };
+        lessThanEqual?: number;
+        moreThanEqual?: number;
+    }): `(?<=(${P}))(${T})` | `(${T})(?=(${P}))`;
+    findOne<T extends string, P extends string>({
+        from,
+        include,
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include?: { partial: P; options?: IncludeOptions<boolean> };
         lessThanEqual?: number;
         moreThanEqual?: number;
     }) {
         let expression = from;
+        if (include) {
+            if (include.options.isForehead) {
+                return this.excuteIncludeStatement(expression, include.partial, { isForehead: true });
+            } else {
+                return this.excuteIncludeStatement(expression, include.partial, { isForehead: false });
+            }
+        }
 
         return expression;
     }
@@ -187,20 +238,25 @@ export class RegExpBuilder {
             includeStatement.value = `${value}${includeStatement.value}`;
             return this;
         }
-        return this.include(value, options);
+
+        if (options.isForehead) {
+            return this.include(value, { isForehead: true });
+        }
+        return this.include(value, { isForehead: false });
     }
 
     /**
      * @param partial A function returns RegExpBuilder instance to prevent making human error
      * @param options
      */
-    include(partial: (subBuilder: RegExpBuilder) => RegExpBuilder, options?: IncludeOptions): this;
-
+    include(partial: (subBuilder: RegExpBuilder) => RegExpBuilder, options?: IncludeOptions<true>): this;
+    include(partial: (subBuilder: RegExpBuilder) => RegExpBuilder, options?: IncludeOptions<false>): this;
     /**
      * @param partial sub-regular expression builder that returns a string
      * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
      */
-    include(partial: (subBuilder: RegExpBuilder) => string, options?: IncludeOptions): this;
+    include(partial: (subBuilder: RegExpBuilder) => string, options?: IncludeOptions<true>): this;
+    include(partial: (subBuilder: RegExpBuilder) => string, options?: IncludeOptions<false>): this;
 
     /**
      * Specifies the string that must be included before and after the current expression.
@@ -208,10 +264,11 @@ export class RegExpBuilder {
      * @param options isForehead's default is true. If it's false, first parameter(partial) will set after present expression
      * @returns
      */
-    include(partial: string, options?: IncludeOptions): this;
+    include(partial: string, options?: IncludeOptions<true>): this;
+    include(partial: string, options?: IncludeOptions<false>): this;
     include<T extends string>(
         partial: string | SubExpressionBilder<T>,
-        options: IncludeOptions = { isForehead: true },
+        options: IncludeOptions<boolean> = { isForehead: true },
     ) {
         const beforeStatus = this.getRawOne();
         const value: string = slove(partial);
@@ -416,7 +473,11 @@ export class RegExpBuilder {
                         );
                     }
 
-                    return this.excuteIncludeStatement(acc, value, options);
+                    if (options.isForehead) {
+                        return this.excuteIncludeStatement(acc, value, { isForehead: true });
+                    } else {
+                        return this.excuteIncludeStatement(acc, value, { isForehead: false });
+                    }
                 } else if (name === 'lessThanEqual') {
                     return this.executeMoreOrLessThanEqual(acc);
                 } else if (name === 'moreThanEqual') {
@@ -443,8 +504,18 @@ export class RegExpBuilder {
     private excuteIncludeStatement<T extends string, P extends string>(
         lastExpression: T,
         value: P,
-        options: IncludeOptions,
-    ) {
+        options: IncludeOptions<true>,
+    ): `(?<=(${P}))(${T})`;
+    private excuteIncludeStatement<T extends string, P extends string>(
+        lastExpression: T,
+        value: P,
+        options: IncludeOptions<false>,
+    ): `(${T})(?=(${P}))`;
+    private excuteIncludeStatement<T extends string, P extends string>(
+        lastExpression: T,
+        value: P,
+        options: IncludeOptions<boolean>,
+    ): `(?<=(${P}))(${T})` | `(${T})(?=(${P}))` {
         if (options.isForehead) {
             return this.lookbehind(value, lastExpression);
         } else {
