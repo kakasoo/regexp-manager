@@ -1,15 +1,5 @@
-type IncludeOptions = { isForehead?: boolean };
-type AndOptions = { isForehead?: boolean };
-type SubExpressionBilder<T extends string> = (subBuilder: RegExpBuilder) => T | string | RegExpBuilder;
-type Push<T extends any[], val> = [...T, val];
-
-type Status<T = keyof typeof RegExpBuilder.prototype> = {
-    name: T;
-    value: string;
-    options: T extends 'include' ? IncludeOptions : T extends 'and' ? AndOptions : null;
-    beforeStatus: string;
-    order: number;
-};
+import { Status, SubExpressionBilder, AndOptions, IncludeOptions } from 'types';
+import { RegExpRepository } from './regexp-repository';
 
 export class RegExpBuilder {
     private flag: 'g' | 'i' | 'ig' | 'm';
@@ -27,6 +17,10 @@ export class RegExpBuilder {
         if (initialValue) {
             this.from(initialValue);
         }
+    }
+
+    getRepository() {
+        return new RegExpRepository();
     }
 
     /**

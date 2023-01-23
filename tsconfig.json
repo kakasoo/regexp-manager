@@ -11,8 +11,9 @@
         "rootDir": "./src",
         "baseUrl": "./",
         "noLib": false,
-        "lib": ["ES2022"]
+        "lib": ["ES2022"],
+        "typeRoots": ["./types"]
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "types/index.d.ts"],
     "exclude": ["node_modules", "src/test", "src/test/example"]
 }
