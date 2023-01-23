@@ -1,5 +1,4 @@
-import { SubExpressionBilder } from 'types';
-import { RegExpBuilder } from './regexp-builder';
+import { RegExpBuilder, SubExpressionBilder } from './regexp-builder';
 
 /**
  * A function that unravels a subBuilder and converts it all intro a string.
