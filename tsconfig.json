@@ -12,7 +12,7 @@
         "baseUrl": "./",
         "noLib": false,
         "lib": ["ES2022"],
-        "typeRoots": ["./types"]
+        "typeRoots": ["./types", "node_modules/@types"]
     },
     "include": ["src/**/*.ts", "types/index.d.ts"],
     "exclude": ["node_modules", "src/test", "src/test/example"]

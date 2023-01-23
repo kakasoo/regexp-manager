@@ -1,11 +1,11 @@
-import { Status, SubExpressionBilder, AndOptions, IncludeOptions } from 'types';
-import { RegExpRepository } from './regexp-repository';
+import { Status, SubExpressionBilder, AndOptions, IncludeOptions, RegExpMethodNames } from 'types';
+import { slove } from './regexp-function';
 
 export class RegExpBuilder {
     private flag: 'g' | 'i' | 'ig' | 'm';
     private minimum?: number;
     private maximum?: number;
-    private step: Array<Status>;
+    private step: Array<Status<RegExpMethodNames>>;
 
     /**
      * It is designed to infer types. maybe.
@@ -19,8 +19,20 @@ export class RegExpBuilder {
         }
     }
 
-    getRepository() {
-        return new RegExpRepository();
+    findOne<T extends string>({
+        from,
+        include = [],
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include?: IncludeOptions[];
+        lessThanEqual?: number;
+        moreThanEqual?: number;
+    }) {
+        let expression = from;
+
+        return expression;
     }
 
     /**
@@ -30,7 +42,7 @@ export class RegExpBuilder {
      * @param separator
      */
     join<T extends string>(partials: (string | SubExpressionBilder<T>)[], separator: string = '') {
-        return partials.map((partial) => this.slove(partial)).join(separator);
+        return partials.map((partial) => slove(partial)).join(separator);
     }
 
     or(subBuilder: (regExpBuilder: RegExpBuilder) => RegExpBuilder): this;
@@ -44,7 +56,7 @@ export class RegExpBuilder {
      */
     or<T extends string>(partial: string | SubExpressionBilder<T>): this {
         const from = this.step.find((el) => el.name === 'from');
-        const value: string = this.slove(partial);
+        const value: string = slove(partial);
 
         from.value = `${from.value}|${value}`;
         return this;
@@ -61,7 +73,7 @@ export class RegExpBuilder {
      */
     and<T extends string>(partial: string | SubExpressionBilder<T>, options: AndOptions = { isForehead: true }): this {
         const from = this.step.find((el) => el.name === 'from');
-        const value: string = this.slove(partial);
+        const value: string = slove(partial);
 
         if (options?.isForehead === true) {
             from.value = `${value}${from.value}`;
@@ -93,20 +105,21 @@ export class RegExpBuilder {
         const beforeStatus = this.getRawOne();
         if (beforeStatus) {
             throw new Error(
-                `already used from method\n` +
+                `already used \`from\` method\n` +
                     `If you have already specified an initial value for the constructor or from method, it is no longer available.\n` +
                     `The builder has only one initial value.\n`,
             );
         }
-        const value: T | string = this.slove(initialValue);
+        const value: T | string = slove(initialValue);
 
-        this.pushStatus({
+        const fromStatus: Status<'from'> = {
             name: 'from',
             value: value,
             options: null,
             beforeStatus: beforeStatus,
             order: 0,
-        } as const);
+        };
+        this.pushStatus('from', fromStatus);
         return this;
     }
 
@@ -118,13 +131,14 @@ export class RegExpBuilder {
     whatever() {
         const beforeStatus = this.getRawOne();
 
-        this.pushStatus({
+        const whateverStatus: Status<'whatever'> = {
             name: 'whatever',
             value: '.',
             options: null,
             beforeStatus: beforeStatus,
             order: 1,
-        } as const);
+        };
+        this.pushStatus('whatever', whateverStatus);
         return this;
     }
 
@@ -136,13 +150,14 @@ export class RegExpBuilder {
     isOptional() {
         const beforeStatus = this.getRawOne();
 
-        this.pushStatus({
+        const isOptionalStatus: Status<'isOptional'> = {
             name: 'isOptional',
             value: '?',
             options: null,
             beforeStatus: beforeStatus,
             order: 1,
-        } as const);
+        };
+        this.pushStatus('isOptional', isOptionalStatus);
         return this;
     }
 
@@ -164,7 +179,7 @@ export class RegExpBuilder {
         partial: string | ((subBuilder: RegExpBuilder) => string),
         options: { isForehead?: boolean } = { isForehead: true },
     ) {
-        const value: string = this.slove(partial);
+        const value: string = slove(partial);
         const includeStatement = this.step.find(
             (el) => el.name === 'include' && el.options.isForehead === options.isForehead,
         );
@@ -199,44 +214,151 @@ export class RegExpBuilder {
         options: IncludeOptions = { isForehead: true },
     ) {
         const beforeStatus = this.getRawOne();
-        const value: string = this.slove(partial);
+        const value: string = slove(partial);
 
-        this.pushStatus({
+        const includeStatus: Status<'include'> = {
             name: 'include',
             value: value,
             options: options,
             beforeStatus: beforeStatus,
             order: 2,
-        } as const);
+        };
+        this.pushStatus('include', includeStatus);
+        return this;
+    }
+
+    between(minimum: number, maximum: number) {
+        const beforeStatus = this.getRawOne();
+
+        const lessThanEquaStatement = this.step.some((el) => el.name === 'lessThanEqual');
+        if (lessThanEquaStatement) {
+            const lessThanEqualStatementIndex = this.step.findIndex((el) => el.name === 'lessThanEqual');
+            const lessThanEqualValue = this.step.at(lessThanEqualStatementIndex).value as number;
+            this.step.splice(lessThanEqualStatementIndex, 1);
+            const betweenStatus: Status<'between'> = {
+                name: 'between',
+                value: [minimum, lessThanEqualValue],
+                options: null,
+                beforeStatus: beforeStatus,
+                order: 3,
+            };
+            this.pushStatus('between', betweenStatus);
+            return this;
+        }
+
+        const moreThanEqualStatement = this.step.some((el) => el.name === 'moreThanEqual');
+        if (moreThanEqualStatement) {
+            const moreThanEqualStatementIndex = this.step.findIndex((el) => el.name === 'moreThanEqual');
+            const moreThanEqualValue = this.step.at(moreThanEqualStatementIndex).value as number;
+            this.step.splice(moreThanEqualStatementIndex, 1);
+            const betweenStatus: Status<'between'> = {
+                name: 'between',
+                value: [moreThanEqualValue, maximum],
+                options: null,
+                beforeStatus: beforeStatus,
+                order: 3,
+            };
+            this.pushStatus('between', betweenStatus);
+            return this;
+        }
+
+        const betweenStatement = this.step.some((el) => el.name === 'between');
+        if (betweenStatement) {
+            throw new Error(
+                `You used \`between\` methods, or you used \`lessThanEqual\`, \`moreThanEqual\` once.\n` +
+                    `These methods cannot be used simultaneously.\n`,
+            );
+        }
+
+        this.minimum = minimum;
+        this.maximum = maximum;
+        const betweenStatus: Status<'between'> = {
+            name: 'between',
+            value: [minimum, maximum],
+            options: null,
+            beforeStatus: beforeStatus,
+            order: 3,
+        };
+        this.pushStatus('between', betweenStatus);
         return this;
     }
 
     lessThanEqual(maximum: number) {
         const beforeStatus = this.getRawOne();
-        this.maximum = maximum;
+        if (this.step.some((el) => el.name === 'lessThanEqual')) {
+            throw new Error(
+                `already used \`lessThanEqual\` method\n` +
+                    `the \`lessThanEqual\` method is available once for each builder pattern.\n`,
+            );
+        } else if (this.step.some((el) => el.name === 'moreThanEqual')) {
+            const moreThanEqualStatementIndex = this.step.findIndex((el) => el.name === 'moreThanEqual');
+            const moreThanEqualValue = this.step.at(moreThanEqualStatementIndex).value as number;
+            this.step.splice(moreThanEqualStatementIndex, 1);
 
-        this.pushStatus({
-            name: 'lessThanEqual',
-            value: maximum.toString(),
-            options: null,
-            beforeStatus: beforeStatus,
-            order: 3,
-        } as const);
-        return this;
+            this.maximum = maximum;
+            const betweenStatus: Status<'between'> = {
+                name: 'between',
+                value: [moreThanEqualValue, maximum],
+                options: null,
+                beforeStatus: beforeStatus,
+                order: 3,
+            };
+            this.pushStatus('between', betweenStatus);
+            return this;
+        } else if (this.step.some((el) => el.name === 'between')) {
+            throw new Error(
+                `You used \`between\` methods, or you used \`lessThanEqual\`, \`moreThanEqual\` once.\n` +
+                    `These methods cannot be used simultaneously.\n`,
+            );
+        } else {
+            this.maximum = maximum;
+            const lessThanEqualStatus: Status<'lessThanEqual'> = {
+                name: 'lessThanEqual',
+                value: maximum,
+                options: null,
+                beforeStatus: beforeStatus,
+                order: 3,
+            };
+            this.pushStatus('lessThanEqual', lessThanEqualStatus);
+            return this;
+        }
     }
 
     moreThanEqual(minimum: number) {
         const beforeStatus = this.getRawOne();
-        this.minimum = minimum;
+        if (this.step.some((el) => el.name === 'lessThanEqual')) {
+            const lessThanEqualStatementIndex = this.step.findIndex((el) => el.name === 'lessThanEqual');
+            const lessThanEqualValue = this.step.at(lessThanEqualStatementIndex).value as number;
+            this.step.splice(lessThanEqualStatementIndex, 1);
 
-        this.pushStatus({
-            name: 'moreThanEqual',
-            value: minimum.toString(),
-            options: null,
-            beforeStatus: beforeStatus,
-            order: 3,
-        } as const);
-        return this;
+            this.minimum = minimum;
+            const betweenStatus: Status<'between'> = {
+                name: 'between',
+                value: [minimum, lessThanEqualValue],
+                options: null,
+                beforeStatus: beforeStatus,
+                order: 3,
+            };
+            this.pushStatus('between', betweenStatus);
+            return this;
+        } else if (this.step.some((el) => el.name === 'moreThanEqual')) {
+            throw new Error(
+                `already used \`moreThanEqual\` method\n` +
+                    `the \`moreThanEqual\` method is available once for each builder pattern.\n`,
+            );
+        } else if (this.step.some((el) => el.name === 'between')) {
+        } else {
+            this.minimum = minimum;
+            const moreThanEqaulStatus: Status<'moreThanEqual'> = {
+                name: 'moreThanEqual',
+                value: minimum,
+                options: null,
+                beforeStatus: beforeStatus,
+                order: 3,
+            };
+            this.pushStatus('moreThanEqual', moreThanEqaulStatus);
+            return this;
+        }
     }
 
     /**
@@ -255,27 +377,11 @@ export class RegExpBuilder {
     }
 
     /**
-     * A function that unravels a subBuilder and converts it all intro a string.
-     */
-    private slove<T extends string>(target: T | SubExpressionBilder<T>): T | string {
-        if (typeof target === 'string') {
-            return target;
-        } else {
-            const result = target(new RegExpBuilder());
-            if (typeof result === 'string') {
-                return result;
-            } else {
-                return result.getRawOne();
-            }
-        }
-    }
-
-    /**
      * TODO : classify elements by execution order
      * @param status
      * @returns
      */
-    private pushStatus(status: Status) {
+    private pushStatus<T extends RegExpMethodNames>(name: T, status: Status<T>) {
         this.step.push(status);
         return this;
     }
@@ -304,13 +410,19 @@ export class RegExpBuilder {
      * A function that returns a pattern by executing the methods written so far in order.
      * @returns RegExp's first parameter named "pattern"
      */
-    private execute() {
+    private execute(): string {
         const sorted = this.step
             .sort((a, b) => a.order - b.order)
             .reduce((acc, { name, value, options, beforeStatus, order }, index, arr) => {
                 if (name === 'from') {
-                    return value;
+                    return value as string;
                 } else if (name === 'include') {
+                    if (typeof value !== 'string') {
+                        throw new Error(
+                            "RegExpBuilder private method error : lookbehind first parameter's type is string.\n",
+                        );
+                    }
+
                     if (options.isForehead) {
                         return this.lookbehind(value, acc);
                     } else {
