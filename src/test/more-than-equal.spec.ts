@@ -15,7 +15,6 @@ describe('moreThanEqual', () => {
     it('1. string "cat" but moreThanEqual 3', () => {
         const regExp = new RegExpBuilder().from('(cat)').moreThanEqual(3).getOne();
 
-        console.log(regExp);
         expect('cat'.match(regExp)?.at(0) === 'cat').toBe(false);
         expect('catcat'.match(regExp)?.at(0) === 'catcat').toBe(false);
         expect('catcatcat'.match(regExp)?.at(0) === 'catcatcat').toBe(true);

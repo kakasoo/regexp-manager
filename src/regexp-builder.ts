@@ -409,44 +409,24 @@ export class RegExpBuilder {
                 if (name === 'from') {
                     return value as string;
                 } else if (name === 'include') {
+                    // TODO : add type infer
                     if (typeof value !== 'string') {
                         throw new Error(
                             "RegExpBuilder private method error : lookbehind first parameter's type is string.\n",
                         );
                     }
 
-                    if (options.isForehead) {
-                        return this.lookbehind(value, acc);
-                    } else {
-                        return this.lookaround(acc, value);
-                    }
+                    return this.excuteIncludeStatement(acc, value, options);
                 } else if (name === 'lessThanEqual') {
-                    if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
-                        // more than equal minimum, less thean equal maximum
-                        return `${acc}{${this.minimum}, ${this.maximum}}`;
-                    } else if (typeof this.minimum === 'number') {
-                        // more than equal minimum
-                        return `${acc}{${this.minimum},}`;
-                    } else if (typeof this.maximum === 'number') {
-                        // more than equal 1, less thean equal maximum
-                        return `${acc}{1,${this.maximum}}`;
-                    }
+                    return this.executeMoreOrLessThanEqual(acc);
                 } else if (name === 'moreThanEqual') {
-                    if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
-                        // more than equal minimum, less thean equal maximum
-                        return `${acc}{${this.minimum}, ${this.maximum}}`;
-                    } else if (typeof this.minimum === 'number') {
-                        // more than equal minimum
-                        return `${acc}{${this.minimum},}`;
-                    } else if (typeof this.maximum === 'number') {
-                        // more than equal 1, less thean equal maximum
-                        return `${acc}{1,${this.maximum}}`;
-                    }
+                    return this.executeMoreOrLessThanEqual(acc);
                 } else if (name === 'between') {
-                    if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
-                        // more than equal minimum, less thean equal maximum
-                        return `${acc}{${this.minimum}, ${this.maximum}}`;
-                    }
+                    // if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
+                    //     // more than equal minimum, less thean equal maximum
+                    //     return `${acc}{${this.minimum}, ${this.maximum}}`;
+                    // }
+                    return this.executeMoreOrLessThanEqual(acc);
                 } else if (name === 'whatever') {
                     if (acc === '') {
                         return '.';
@@ -458,5 +438,32 @@ export class RegExpBuilder {
             }, '');
 
         return sorted;
+    }
+
+    private excuteIncludeStatement<T extends string, P extends string>(
+        lastExpression: T,
+        value: P,
+        options: IncludeOptions,
+    ) {
+        if (options.isForehead) {
+            return this.lookbehind(value, lastExpression);
+        } else {
+            return this.lookaround(lastExpression, value);
+        }
+    }
+
+    private executeMoreOrLessThanEqual<T extends string>(
+        lastExpression: T,
+    ): `${T}{${number},${number}}` | `${T}{${number},}` | `${T}{1,${number}}` {
+        if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
+            // more than equal minimum, less thean equal maximum
+            return `${lastExpression}{${this.minimum},${this.maximum}}`;
+        } else if (typeof this.minimum === 'number') {
+            // more than equal minimum
+            return `${lastExpression}{${this.minimum},}`;
+        } else if (typeof this.maximum === 'number') {
+            // more than equal 1, less thean equal maximum
+            return `${lastExpression}{1,${this.maximum}}`;
+        }
     }
 }
