@@ -21,12 +21,10 @@ export class RegExpBuilder {
 
     findOne<T extends string>({
         from,
-        include,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        include?: null;
         lessThanEqual?: number;
         moreThanEqual?: number;
     }): T;
@@ -74,12 +72,20 @@ export class RegExpBuilder {
         lessThanEqual?: number;
         moreThanEqual?: number;
     }) {
-        let expression = from;
+        let expression: string = from;
         if (include) {
+            if (!include.options) {
+                include.options = { isForehead: true };
+            }
+
+            if (typeof include.options?.isForehead === 'undefined') {
+                include.options.isForehead = true;
+            }
+
             if (include.options.isForehead) {
-                return this.excuteIncludeStatement(expression, include.partial, { isForehead: true });
+                expression = this.excuteIncludeStatement(expression, include.partial, { isForehead: true });
             } else {
-                return this.excuteIncludeStatement(expression, include.partial, { isForehead: false });
+                expression = this.excuteIncludeStatement(expression, include.partial, { isForehead: false });
             }
         }
 

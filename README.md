@@ -195,17 +195,17 @@ it('1. string "cat" but lessThanEqual 3', () => {
 # findOne method (incomplete)
 
 ```typescript
-it('from method set initial value & include other', () => {
+it('from method set initial value & include other 1', () => {
     const test = new RegExpBuilder().findOne({
         from: 'test',
         include: { partial: 'left', options: {} },
     });
 
-    expect(test).toBe('(test)(?=(left))');
+    expect(test).toBe('(?<=(left))(test)');
 });
 ```
 
-The test variable is deduced from type to `'(test)(?=(left))'`, without having to check whether it is `'(test)(?=(left))'`.  
+The test variable is deduced from type to `'(?<=(left))(test)'`, without having to check whether it is `'(?<=(left))(test)'`.  
 Therefore, the findOne method is useful when you immediately deduce and write a value, even if it may be less free than other RegExpBuilder methods.  
 now from and include method options available.
 

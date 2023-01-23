@@ -12,13 +12,31 @@ describe('Check regexp-builder is type-safe', () => {
     });
 
     describe('from & include infer response type', () => {
-        it('from method set initial value & include other', () => {
+        it('from method set initial value & include other 1', () => {
             const test = new RegExpBuilder().findOne({
                 from: 'test',
                 include: { partial: 'left', options: {} },
             });
 
-            expect(test).toBe('(test)(?=(left))');
+            expect(test).toBe('(?<=(left))(test)');
+        });
+
+        it('from method set initial value & include other 2', () => {
+            const test = new RegExpBuilder().findOne({
+                from: 'test',
+                include: { partial: 'left' },
+            });
+
+            expect(test).toBe('(?<=(left))(test)');
+        });
+
+        it('from method set initial value & include other 3', () => {
+            const test = new RegExpBuilder().findOne({
+                from: 'test',
+                include: { partial: 'right', options: { isForehead: false } },
+            });
+
+            expect(test).toBe('(test)(?=(right))');
         });
     });
 });
