@@ -56,47 +56,47 @@ export class RegExpBuilder {
         lessThanEqual?: number;
         moreThanEqual?: number;
     }): T;
-    findOne<T extends string, P extends string>({
+    findOne<T extends string, U extends string>({
         from,
         include,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        include: { partial: P; options?: IncludeOptions<true> };
+        include: { partial: U; options?: IncludeOptions<true> };
         lessThanEqual?: number;
         moreThanEqual?: number;
-    }): `(${T})(?=(${P}))`;
-    findOne<T extends string, P extends string>({
+    }): `(${T})(?=(${U}))`;
+    findOne<T extends string, U extends string>({
         from,
         include,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        include: { partial: P; options?: IncludeOptions<false> };
+        include: { partial: U; options?: IncludeOptions<false> };
         lessThanEqual?: number;
         moreThanEqual?: number;
-    }): `(?<=(${P}))(${T})`;
-    findOne<T extends string, P extends string>({
+    }): `(?<=(${U}))(${T})`;
+    findOne<T extends string, U extends string>({
         from,
         include,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        include: { partial: P; options?: IncludeOptions<boolean> };
+        include: { partial: U; options?: IncludeOptions<boolean> };
         lessThanEqual?: number;
         moreThanEqual?: number;
-    }): `(?<=(${P}))(${T})` | `(${T})(?=(${P}))`;
-    findOne<T extends string, P extends string>({
+    }): `(?<=(${U}))(${T})` | `(${T})(?=(${U}))`;
+    findOne<T extends string, U extends string>({
         from,
         include,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        include?: { partial: P; options?: IncludeOptions<boolean> };
+        include?: { partial: U; options?: IncludeOptions<boolean> };
         lessThanEqual?: number;
         moreThanEqual?: number;
     }) {
@@ -115,6 +115,10 @@ export class RegExpBuilder {
             } else {
                 expression = this.excuteIncludeStatement(expression, include.partial, { isForehead: false });
             }
+        }
+
+        if (lessThanEqual || moreThanEqual) {
+            expression = this.executeMoreOrLessThanEqual(expression, lessThanEqual, moreThanEqual);
         }
 
         return expression;
@@ -474,7 +478,7 @@ export class RegExpBuilder {
      * @param second lookaround(?=) string
      * @return `(${first})(${symbol}(${second}))`
      */
-    private lookaround<T extends string, P extends string>(first: T, second: P): `(${T})(?=(${P}))` {
+    private lookaround<T extends string, U extends string>(first: T, second: U): `(${T})(?=(${U}))` {
         const symbol = '?=';
         return `(${first})(${symbol}(${second}))`;
     }
@@ -484,7 +488,7 @@ export class RegExpBuilder {
      * @param second string (to catch)
      * @returns `(${symbol}(${first}))(${second})`
      */
-    private lookbehind<T extends string, P extends string>(first: T, second: P): `(?<=(${T}))(${P})` {
+    private lookbehind<T extends string, U extends string>(first: T, second: U): `(?<=(${T}))(${U})` {
         const symbol = '?<=';
         return `(${symbol}(${first}))(${second})`;
     }
@@ -535,21 +539,21 @@ export class RegExpBuilder {
         return sorted;
     }
 
-    private excuteIncludeStatement<T extends string, P extends string>(
+    private excuteIncludeStatement<T extends string, U extends string>(
         lastExpression: T,
-        value: P,
+        value: U,
         options: IncludeOptions<true>,
-    ): `(?<=(${P}))(${T})`;
-    private excuteIncludeStatement<T extends string, P extends string>(
+    ): `(?<=(${U}))(${T})`;
+    private excuteIncludeStatement<T extends string, U extends string>(
         lastExpression: T,
-        value: P,
+        value: U,
         options: IncludeOptions<false>,
-    ): `(${T})(?=(${P}))`;
-    private excuteIncludeStatement<T extends string, P extends string>(
+    ): `(${T})(?=(${U}))`;
+    private excuteIncludeStatement<T extends string, U extends string>(
         lastExpression: T,
-        value: P,
+        value: U,
         options: IncludeOptions<boolean>,
-    ): `(?<=(${P}))(${T})` | `(${T})(?=(${P}))` {
+    ): `(?<=(${U}))(${T})` | `(${T})(?=(${U}))` {
         if (options.isForehead) {
             return this.lookbehind(value, lastExpression);
         } else {
@@ -559,7 +563,22 @@ export class RegExpBuilder {
 
     private executeMoreOrLessThanEqual<T extends string>(
         lastExpression: T,
+        lessThanEqual?: number,
+        moreThanEqual?: number,
     ): `${T}{${number},${number}}` | `${T}{${number},}` | `${T}{1,${number}}` {
+        if (lessThanEqual || moreThanEqual) {
+            if (typeof moreThanEqual === 'number' && typeof lessThanEqual === 'number') {
+                // more than equal minimum, less thean equal maximum
+                return `${lastExpression}{${moreThanEqual},${lessThanEqual}}`;
+            } else if (typeof moreThanEqual === 'number') {
+                // more than equal minimum
+                return `${lastExpression}{${moreThanEqual},}`;
+            } else if (typeof lessThanEqual === 'number') {
+                // more than equal 1, less thean equal maximum
+                return `${lastExpression}{1,${lessThanEqual}}`;
+            }
+        }
+
         if (typeof this.minimum === 'number' && typeof this.maximum === 'number') {
             // more than equal minimum, less thean equal maximum
             return `${lastExpression}{${this.minimum},${this.maximum}}`;
