@@ -1,17 +1,23 @@
 import { slove } from './regexp-function';
 
-export type IncludeOptions<T extends boolean> = T extends null ? { isForehead: true } : { isForehead?: T };
+export type IncludeOptions<T extends boolean = true> = { isForehead?: T };
+
 export type AndOptions = { isForehead?: boolean };
+
 export type SubExpressionBilder<T extends string> = (subBuilder: RegExpBuilder) => T | string | RegExpBuilder;
+
 export type Push<T extends any[], val> = [...T, val];
 
-export type IncludeType<T extends string, U extends boolean> = { partial: T; options?: IncludeOptions<U> };
+export type IncludeType<T extends string, U extends boolean = true> = {
+    partial: T;
+    options?: IncludeOptions<U>;
+};
 
 export type ExecutionInclude<
     originalType extends string,
     partialType extends string,
     T extends boolean,
-    U extends IncludeType<partialType, T>, // { partial: partialType; options?: IncludeOptions<T> },
+    U extends IncludeType<partialType, T>,
 > = U extends null
     ? `${originalType}`
     : T extends true
@@ -81,29 +87,7 @@ export class RegExpBuilder {
         }
     }
 
-    findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
-        from,
-        include,
-        lessThanEqual,
-        moreThanEqual,
-    }: {
-        from: T;
-        include: IncludeType<U, foreheadOrBehind>;
-        lessThanEqual: V;
-        moreThanEqual: W;
-    }): ExecutionComparison<ExecutionInclude<T, U, foreheadOrBehind, IncludeType<U, foreheadOrBehind>>, W, V>;
-    findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
-        from,
-        include,
-        lessThanEqual,
-        moreThanEqual,
-    }: {
-        from: T;
-        include: IncludeType<U, false>;
-        lessThanEqual: V;
-        moreThanEqual: W;
-    }): ExecutionComparison<ExcutionIncludeBehind<T, U>, W, V>;
-    findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
+    findOne<T extends string, U extends string, V extends number, W extends number>({
         from,
         include,
         lessThanEqual,
@@ -114,6 +98,19 @@ export class RegExpBuilder {
         lessThanEqual: V;
         moreThanEqual: W;
     }): ExecutionComparison<ExcutionIncludeForehead<T, U>, W, V>;
+
+    findOne<T extends string, U extends string, V extends number, W extends number>({
+        from,
+        include,
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include: IncludeType<U, false>;
+        lessThanEqual: V;
+        moreThanEqual: W;
+    }): ExecutionComparison<ExcutionIncludeBehind<T, U>, W, V>;
+
     findOne<T extends string, V extends number, W extends number>({
         from,
         lessThanEqual,
@@ -123,13 +120,7 @@ export class RegExpBuilder {
         lessThanEqual: V;
         moreThanEqual: W;
     }): ExecutionComparison<T, W, V>;
-    findOne<T extends string, U extends string>({
-        from,
-        include,
-    }: {
-        from: T;
-        include: IncludeType<U, false>;
-    }): ExcutionIncludeBehind<T, U>;
+
     findOne<T extends string, U extends string>({
         from,
         include,
@@ -137,7 +128,21 @@ export class RegExpBuilder {
         from: T;
         include: IncludeType<U, true>;
     }): ExcutionIncludeForehead<T, U>;
+
+    findOne<T extends string, U extends string>({
+        from,
+        include,
+    }: {
+        from: T;
+        include: IncludeType<U, false>;
+    }): ExcutionIncludeBehind<T, U>;
     findOne<T extends string>({ from }: { from: T }): `${T}`;
+
+    /**
+     *
+     * @param {findOneParameterType} param0
+     * @returns pattern is type-safe
+     */
     findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
         from,
         include,
@@ -152,11 +157,11 @@ export class RegExpBuilder {
         let expression: string = from;
         if (include) {
             if (!include.options) {
-                include.options = { isForehead: true } as IncludeOptions<foreheadOrBehind>;
+                include.options = { isForehead: true } as any;
             }
 
             if (typeof include.options?.isForehead === 'undefined') {
-                include.options.isForehead = true;
+                include.options.isForehead = true as any;
             }
 
             if (include.options.isForehead) {

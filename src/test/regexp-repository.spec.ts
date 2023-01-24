@@ -56,6 +56,7 @@ describe('Check regexp-builder is type-safe', () => {
         it('it will be "test{1,3}"', () => {
             const test = new RegExpBuilder().findOne({
                 from: 'test',
+                // include: { partial: 'left', options: { isForehead: true } },
                 include: { partial: 'left' },
                 moreThanEqual: 1,
                 lessThanEqual: 3,
