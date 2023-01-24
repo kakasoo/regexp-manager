@@ -24,7 +24,7 @@ describe('Check regexp-builder is type-safe', () => {
         it('from method set initial value & include other 2', () => {
             const test = new RegExpBuilder().findOne({
                 from: 'test',
-                include: { partial: 'left' },
+                include: { partial: 'left', options: { isForehead: true } },
             });
 
             expect(test).toBe('(?<=(left))(test)');
