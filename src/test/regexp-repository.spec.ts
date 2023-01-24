@@ -51,4 +51,17 @@ describe('Check regexp-builder is type-safe', () => {
             expect(test).toBe('test{1,3}');
         });
     });
+
+    describe('from & include & lessThanEqual & moreThanEqual', () => {
+        it('it will be "test{1,3}"', () => {
+            const test = new RegExpBuilder().findOne({
+                from: 'test',
+                include: { partial: 'left' },
+                moreThanEqual: 1,
+                lessThanEqual: 3,
+            });
+
+            expect(test).toBe('(?<=(left))(test){1,3}');
+        });
+    });
 });

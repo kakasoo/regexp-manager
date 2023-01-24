@@ -192,22 +192,29 @@ it('1. string "cat" but lessThanEqual 3', () => {
 });
 ```
 
-# findOne method (incomplete)
+# findOne method (incomplete 23.01.24)
 
 ```typescript
 it('from method set initial value & include other 1', () => {
+    // If you put the mouse over the variable,
+    // you can see in advance what regular expression pattern will come out.
+
     const test = new RegExpBuilder().findOne({
         from: 'test',
-        include: { partial: 'left', options: {} },
+        include: { partial: 'left' },
+        moreThanEqual: 1,
+        lessThanEqual: 3,
     });
 
-    expect(test).toBe('(?<=(left))(test)');
+    expect(test).toBe('(?<=(left))(test){1,3}');
 });
 ```
 
 The test variable is deduced from type to `'(?<=(left))(test)'`, without having to check whether it is `'(?<=(left))(test)'`.  
 Therefore, the findOne method is useful when you immediately deduce and write a value, even if it may be less free than other RegExpBuilder methods.  
-now from and include method options available.
+now `from` and `include`, `lessThanEqual`, `moreThanEqual` options available.
+
+[this link is test code of `findOne` method. it will help you.](https://github.com/kakasoo/regexp-manager/blob/main/src/test/regexp-repository.spec.ts)
 
 # order by execution
 
