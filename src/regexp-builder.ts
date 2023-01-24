@@ -5,11 +5,13 @@ export type AndOptions = { isForehead?: boolean };
 export type SubExpressionBilder<T extends string> = (subBuilder: RegExpBuilder) => T | string | RegExpBuilder;
 export type Push<T extends any[], val> = [...T, val];
 
+export type IncludeType<T extends string, U extends boolean> = { partial: T; options?: IncludeOptions<U> };
+
 export type ExecutionInclude<
     originalType extends string,
     partialType extends string,
     T extends boolean,
-    U extends { partial: partialType; options: IncludeOptions<T> },
+    U extends IncludeType<partialType, T>, // { partial: partialType; options?: IncludeOptions<T> },
 > = U extends null
     ? `${originalType}`
     : T extends true
@@ -33,10 +35,10 @@ export type ExcutionIncludeBehind<originType extends string, partialType extends
 export type ExecutionComparison<T extends string, minLimit extends number, maxLimit extends number> = minLimit extends
     | null
     | undefined
-    ? maxLimit extends null | undefined
+    ? maxLimit extends null
         ? `${T}`
         : `${T}{1,${maxLimit}}`
-    : maxLimit extends null | undefined
+    : maxLimit extends null
     ? `${T}{${minLimit},}`
     : `${T}{${minLimit},${maxLimit}}`;
 
@@ -79,83 +81,78 @@ export class RegExpBuilder {
         }
     }
 
-    findOne<T extends string>({ from }: { from: T }): `${T}`;
-    findOne<T extends string, U extends string>({
+    findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
         from,
         include,
+        lessThanEqual,
+        moreThanEqual,
     }: {
         from: T;
-        include: { partial: U; options?: IncludeOptions<true> };
-    }): ExcutionIncludeForehead<T, U>;
-    findOne<T extends string, U extends string>({
+        include: IncludeType<U, foreheadOrBehind>;
+        lessThanEqual: V;
+        moreThanEqual: W;
+    }): ExecutionComparison<ExecutionInclude<T, U, foreheadOrBehind, IncludeType<U, foreheadOrBehind>>, W, V>;
+    findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
         from,
         include,
+        lessThanEqual,
+        moreThanEqual,
     }: {
         from: T;
-        include: { partial: U; options?: IncludeOptions<false> };
-    }): ExcutionIncludeBehind<T, U>;
+        include: IncludeType<U, false>;
+        lessThanEqual: V;
+        moreThanEqual: W;
+    }): ExecutionComparison<ExcutionIncludeBehind<T, U>, W, V>;
+    findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
+        from,
+        include,
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include: IncludeType<U, true>;
+        lessThanEqual: V;
+        moreThanEqual: W;
+    }): ExecutionComparison<ExcutionIncludeForehead<T, U>, W, V>;
     findOne<T extends string, V extends number, W extends number>({
         from,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        lessThanEqual?: V;
-        moreThanEqual?: W;
+        lessThanEqual: V;
+        moreThanEqual: W;
     }): ExecutionComparison<T, W, V>;
-
-    findOne<T extends string, forheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
+    findOne<T extends string, U extends string>({
+        from,
+        include,
+    }: {
+        from: T;
+        include: IncludeType<U, false>;
+    }): ExcutionIncludeBehind<T, U>;
+    findOne<T extends string, U extends string>({
+        from,
+        include,
+    }: {
+        from: T;
+        include: IncludeType<U, true>;
+    }): ExcutionIncludeForehead<T, U>;
+    findOne<T extends string>({ from }: { from: T }): `${T}`;
+    findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
         from,
         include,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        include: { partial: U; options?: IncludeOptions<true> };
-        lessThanEqual?: V;
-        moreThanEqual?: W;
-    }): ExecutionComparison<ExcutionIncludeForehead<T, U>, W, V>;
-    findOne<T extends string, forheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
-        from,
-        include,
-        lessThanEqual,
-        moreThanEqual,
-    }: {
-        from: T;
-        include: { partial: U; options?: IncludeOptions<false> };
-        lessThanEqual?: V;
-        moreThanEqual?: W;
-    }): ExecutionComparison<ExcutionIncludeBehind<T, U>, W, V>;
-    findOne<T extends string, forheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
-        from,
-        include,
-        lessThanEqual,
-        moreThanEqual,
-    }: {
-        from: T;
-        include: { partial: U; options?: IncludeOptions<forheadOrBehind> };
-        lessThanEqual?: V;
-        moreThanEqual?: W;
-    }): ExecutionComparison<
-        ExecutionInclude<T, U, forheadOrBehind, { partial: U; options: IncludeOptions<forheadOrBehind> }>,
-        W,
-        V
-    >;
-    findOne<T extends string, forheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
-        from,
-        include,
-        lessThanEqual,
-        moreThanEqual,
-    }: {
-        from: T;
-        include?: { partial: U; options?: IncludeOptions<forheadOrBehind> };
+        include?: IncludeType<U, foreheadOrBehind>;
         lessThanEqual?: V;
         moreThanEqual?: W;
     }) {
         let expression: string = from;
         if (include) {
             if (!include.options) {
-                include.options = { isForehead: true } as IncludeOptions<forheadOrBehind>;
+                include.options = { isForehead: true } as IncludeOptions<foreheadOrBehind>;
             }
 
             if (typeof include.options?.isForehead === 'undefined') {

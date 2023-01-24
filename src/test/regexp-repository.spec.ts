@@ -63,5 +63,25 @@ describe('Check regexp-builder is type-safe', () => {
 
             expect(test).toBe('(?<=(left))(test){1,3}');
         });
+
+        it('test 2.', () => {
+            const test = new RegExpBuilder().findOne({
+                from: 'hi',
+                include: { partial: 'bye', options: { isForehead: true } },
+                moreThanEqual: 1,
+                lessThanEqual: 10,
+            });
+
+            expect(test).toBe('(?<=(bye))(hi){1,10}');
+        });
+
+        it('test 3.', () => {
+            const test = new RegExpBuilder().findOne({
+                from: 'www.kakasoo.com',
+                include: { partial: 'https://', options: { isForehead: true } },
+            });
+
+            expect(test).toBe('(?<=(https://))(www.kakasoo.com)');
+        });
     });
 });
