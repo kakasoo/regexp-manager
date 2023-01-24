@@ -3,6 +3,30 @@
 The library aims to make regular expressions easier for developers who have worked with ORM.
 Inspired by [TypeORM's queryBuilder](https://orkhan.gitbook.io/typeorm/docs/select-query-builder#what-is-querybuilder), the library is designed to provide a builder pattern named RegExpBuilder.
 
+# findOne method (incomplete 23.01.24)
+
+```typescript
+it('from method set initial value & include other 1', () => {
+    // If you put the mouse over the variable,
+    // you can see in advance what regular expression pattern will come out.
+
+    const test = new RegExpBuilder().findOne({
+        from: 'test',
+        include: { partial: 'left' },
+        moreThanEqual: 1,
+        lessThanEqual: 3,
+    });
+
+    expect(test).toBe('(?<=(left))(test){1,3}');
+});
+```
+
+The test variable is deduced from type to `'(?<=(left))(test)'`, without having to check whether it is `'(?<=(left))(test)'`.  
+Therefore, the findOne method is useful when you immediately deduce and write a value, even if it may be less free than other RegExpBuilder methods.  
+now `from` and `include`, `lessThanEqual`, `moreThanEqual` options available.
+
+[this link is test code of `findOne` method. it will help you.](https://github.com/kakasoo/regexp-manager/blob/main/src/test/regexp-repository.spec.ts)
+
 # createRegExpBuilder
 
 ```typescript
@@ -24,7 +48,9 @@ so, you can create regExp and decorate by using RegExpBuilder methods.
 You can simply call a method called `createRegExpBuilder` to create a builder, and you can use various methods to create regular expressions without learning it.  
 The code above makes you not have to memorize regular expression symbols such as lookaround and lookbehind.
 
-## from method
+## createRegExpBuilder methods
+
+### from method
 
 ```typescript
 const regExp = new RegExpBuilder('initialValue').getOne(); // RegExp
@@ -38,16 +64,16 @@ const regExp = new RegExpBuilder().from('initialValue').getOne(); // RegExp, sam
 If you want to create a more complex pattern, you can also write the `sub-expression` below.  
 All methods to be implemented in the future will be made all sub-expression possible.
 
-## getOne method
+### getOne method
 
 Returns regexp instances based on methods written so far.
 
-## getRawOne method
+### getRawOne method
 
 Returns string based on methods written so far.  
 You can use this as the first parameter of the regular expression constructor.
 
-## include & andInclude method
+### include & andInclude method
 
 ```typescript
 /**
@@ -83,11 +109,11 @@ The options means where the string of this inclusion relationship should be loca
 
 The include method should only be used once per builder. If you want to use a second inclusion, sconsider and include.
 
-## isOptinonal method (incomplete)
+### isOptinonal method (incomplete)
 
-## whatever method (incomplete)
+### whatever method (incomplete)
 
-## and method
+### and method
 
 ```typescript
 const leftHand = new RegExpBuilder('Hand').and('left', { isForehead: true }).getRawOne();
@@ -106,7 +132,7 @@ expect(regexp).toBe('threetwoone');
 The `and` method is responsible for modifying the initial value.  
 When writing a initial value, it would be more readable to write it separately using the and method rather than writing it in a single line.
 
-## or
+### or
 
 ```typescript
 const leftOrRight = new RegExpBuilder('left').or('right').getRawOne();
@@ -132,7 +158,7 @@ expect(leftOrRight).toBe('left|right');
 The `or` method is responsible for modifying the initial value.  
 When writing a initial value, it would be more readable to write it separately using the and method rather than writing it in a single line.
 
-## join
+### join
 
 ```typescript
 const regexp = new RegExpBuilder()
@@ -146,7 +172,7 @@ expect(regexp).toBe('one|two|three');
 
 the `join` method make from method easy.
 
-## lessThanEqual
+### lessThanEqual
 
 ```typescript
 it('1. string "cat" but lessThanEqual 3', () => {
@@ -163,7 +189,7 @@ it('1. string "cat" but lessThanEqual 3', () => {
 });
 ```
 
-## moreThanEqual
+### moreThanEqual
 
 ```typescript
 it('1. string "cat" but moreThanEqual 3', () => {
@@ -180,7 +206,7 @@ it('1. string "cat" but moreThanEqual 3', () => {
 });
 ```
 
-## between
+### between
 
 ```typescript
 it('1. string "cat" but lessThanEqual 3', () => {
@@ -192,31 +218,7 @@ it('1. string "cat" but lessThanEqual 3', () => {
 });
 ```
 
-# findOne method (incomplete 23.01.24)
-
-```typescript
-it('from method set initial value & include other 1', () => {
-    // If you put the mouse over the variable,
-    // you can see in advance what regular expression pattern will come out.
-
-    const test = new RegExpBuilder().findOne({
-        from: 'test',
-        include: { partial: 'left' },
-        moreThanEqual: 1,
-        lessThanEqual: 3,
-    });
-
-    expect(test).toBe('(?<=(left))(test){1,3}');
-});
-```
-
-The test variable is deduced from type to `'(?<=(left))(test)'`, without having to check whether it is `'(?<=(left))(test)'`.  
-Therefore, the findOne method is useful when you immediately deduce and write a value, even if it may be less free than other RegExpBuilder methods.  
-now `from` and `include`, `lessThanEqual`, `moreThanEqual` options available.
-
-[this link is test code of `findOne` method. it will help you.](https://github.com/kakasoo/regexp-manager/blob/main/src/test/regexp-repository.spec.ts)
-
-# order by execution
+## order by execution
 
 1. from ( or constructor )
 2. whatever, isoptional
