@@ -85,4 +85,24 @@ describe('Check regexp-builder is type-safe', () => {
             expect(test).toBe('(?<=(https://))(www.kakasoo.com)');
         });
     });
+
+    describe('to be created', () => {
+        it('If you do not start or end with - (hypoon), but you can have as many as you want in the middle.', () => {
+            // const pattern = new RegExpBuilder().findOne({
+            //     from: '([0-9a-zA-Z-])+[^\\-]$',
+            //     add: { partial: '^[^\\-]?', options: { isForehead: true } },
+            // });
+            // console.log(pattern);
+            // const first = new RegExp(pattern).test('abcdefg');
+            // expect(first).toBe(true);
+            // const second = new RegExp(pattern).test('-abcdefg');
+            // expect(second).toBe(false);
+            // const third = new RegExp(pattern).test('abcdefg-');
+            // expect(third).toBe(false);
+            // const fourth = new RegExp(pattern).test('-abcdefg-');
+            // expect(fourth).toBe(false);
+            // const fourth = new RegExp(pattern).test('abc-d-efg');
+            // expect(fourth).toBe(true);
+        });
+    });
 });
