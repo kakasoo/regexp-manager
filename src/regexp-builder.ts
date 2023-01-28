@@ -8,6 +8,8 @@ export type SubExpressionBilder<T extends string> = (subBuilder: RegExpBuilder) 
 
 export type Push<T extends any[], val> = [...T, val];
 
+export type NTuple<T extends any[], N extends number> = T['length'] extends N ? T : NTuple<Push<T, any>, N>;
+
 export type IncludeType<T extends string, U extends boolean = true> = {
     partial: T;
     options?: IncludeOptions<U>;
@@ -87,6 +89,30 @@ export class RegExpBuilder {
         }
     }
 
+    findOne<T extends string, U1 extends string, U2 extends string, V extends number, W extends number>({
+        from,
+        include,
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include: NTuple<[IncludeType<U1, true>, IncludeType<U2, false>], 2>;
+        lessThanEqual: V;
+        moreThanEqual: W;
+    }): ExecutionComparison<ExcutionIncludeBehind<ExcutionIncludeForehead<T, U1>, U2>, W, V>;
+
+    findOne<T extends string, U1 extends string, U2 extends string, V extends number, W extends number>({
+        from,
+        include,
+        lessThanEqual,
+        moreThanEqual,
+    }: {
+        from: T;
+        include: NTuple<[IncludeType<U1, false>, IncludeType<U2, true>], 2>;
+        lessThanEqual: V;
+        moreThanEqual: W;
+    }): ExecutionComparison<ExcutionIncludeForehead<ExcutionIncludeBehind<T, U1>, U2>, W, V>;
+
     findOne<T extends string, U extends string, V extends number, W extends number>({
         from,
         include,
@@ -121,6 +147,22 @@ export class RegExpBuilder {
         moreThanEqual: W;
     }): ExecutionComparison<T, W, V>;
 
+    findOne<T extends string, U1 extends string, U2 extends string>({
+        from,
+        include,
+    }: {
+        from: T;
+        include: NTuple<[IncludeType<U1, true>, IncludeType<U2, false>], 2>;
+    }): ExcutionIncludeBehind<ExcutionIncludeForehead<T, U1>, U2>;
+
+    findOne<T extends string, U1 extends string, U2 extends string>({
+        from,
+        include,
+    }: {
+        from: T;
+        include: NTuple<[IncludeType<U1, false>, IncludeType<U2, true>], 2>;
+    }): ExcutionIncludeForehead<ExcutionIncludeBehind<T, U1>, U2>;
+
     findOne<T extends string, U extends string>({
         from,
         include,
@@ -136,6 +178,7 @@ export class RegExpBuilder {
         from: T;
         include: IncludeType<U, false>;
     }): ExcutionIncludeBehind<T, U>;
+
     findOne<T extends string>({ from }: { from: T }): `${T}`;
 
     /**
@@ -143,31 +186,73 @@ export class RegExpBuilder {
      * @param {findOneParameterType} param0
      * @returns pattern is type-safe
      */
-    findOne<T extends string, foreheadOrBehind extends boolean, U extends string, V extends number, W extends number>({
+    findOne<
+        T extends string,
+        foreheadOrBehind extends boolean,
+        includeString extends string,
+        includeString2 extends string,
+        V extends number,
+        W extends number,
+    >({
         from,
         include,
         lessThanEqual,
         moreThanEqual,
     }: {
         from: T;
-        include?: IncludeType<U, foreheadOrBehind>;
+        include?:
+            | IncludeType<includeString, foreheadOrBehind>
+            | NTuple<[IncludeType<includeString, true>, IncludeType<includeString2, false>], 2>
+            | NTuple<[IncludeType<includeString, false>, IncludeType<includeString2, true>], 2>;
         lessThanEqual?: V;
         moreThanEqual?: W;
     }) {
         let expression: string = from;
+
         if (include) {
-            if (!include.options) {
-                include.options = { isForehead: true } as any;
-            }
+            if (include instanceof Array) {
+                const [first, second] = include;
+                if (!first.options) {
+                    first.options = { isForehead: true } as any;
+                }
 
-            if (typeof include.options?.isForehead === 'undefined') {
-                include.options.isForehead = true as any;
-            }
+                if (typeof first.options?.isForehead === 'undefined') {
+                    first.options.isForehead = true as any;
+                }
 
-            if (include.options.isForehead) {
-                expression = this.excuteIncludeStatement(expression, include.partial, { isForehead: true });
+                if (first.options.isForehead) {
+                    expression = this.excuteIncludeStatement(expression, first.partial, { isForehead: true });
+                } else {
+                    expression = this.excuteIncludeStatement(expression, first.partial, { isForehead: false });
+                }
+
+                if (!second.options) {
+                    second.options = { isForehead: true } as any;
+                }
+
+                if (typeof second.options?.isForehead === 'undefined') {
+                    second.options.isForehead = true as any;
+                }
+
+                if (second.options.isForehead) {
+                    expression = this.excuteIncludeStatement(expression, second.partial, { isForehead: true });
+                } else {
+                    expression = this.excuteIncludeStatement(expression, second.partial, { isForehead: false });
+                }
             } else {
-                expression = this.excuteIncludeStatement(expression, include.partial, { isForehead: false });
+                if (!include.options) {
+                    include.options = { isForehead: true } as any;
+                }
+
+                if (typeof include.options?.isForehead === 'undefined') {
+                    include.options.isForehead = true as any;
+                }
+
+                if (include.options.isForehead) {
+                    expression = this.excuteIncludeStatement(expression, include.partial, { isForehead: true });
+                } else {
+                    expression = this.excuteIncludeStatement(expression, include.partial, { isForehead: false });
+                }
             }
         }
 
