@@ -5,6 +5,7 @@ export type IncludeOptions<T extends boolean = true> = { isForehead?: T };
 export type AndOptions = { isForehead?: boolean };
 
 export type SubExpressionBilder<T extends string> = (subBuilder: RegExpBuilder) => T | string | RegExpBuilder;
+export type TypedSubExpressionBilder<T extends string> = (subBuilder: RegExpBuilder) => T | RegExpBuilder<T>;
 
 export type Push<T extends any[], val> = [...T, val];
 
@@ -77,6 +78,7 @@ export class RegExpBuilder<T extends string = string> {
     private maximum?: number;
     private step: Array<Status<RegExpMethodNames>>;
 
+    private initialValue: T;
     /**
      * It is designed to infer types. maybe.
      */
@@ -87,6 +89,10 @@ export class RegExpBuilder<T extends string = string> {
         if (initialValue) {
             this.from(initialValue);
         }
+
+        // below is typed.
+
+        this.initialValue = initialValue;
     }
 
     findOne<T extends string, U1 extends string, U2 extends string, V extends number, W extends number>({
@@ -727,6 +733,22 @@ export class RegExpBuilder<T extends string = string> {
         } else if (typeof this.maximum === 'number') {
             // more than equal 1, less thean equal maximum
             return `${lastExpression}{1,${this.maximum}}`;
+        }
+    }
+
+    typedGetRawOne(): T {
+        return this.initialValue;
+    }
+
+    typedFrom<T extends string>(initialValue: T | TypedSubExpressionBilder<T>): RegExpBuilder<T> {
+        if (typeof initialValue === 'string') {
+            return new RegExpBuilder(initialValue);
+        } else {
+            const sloved = initialValue(new RegExpBuilder());
+            if (typeof sloved === 'string') {
+                return new RegExpBuilder(sloved);
+            }
+            return sloved;
         }
     }
 }
