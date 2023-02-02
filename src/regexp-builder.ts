@@ -71,7 +71,7 @@ export type Status<T extends RegExpMethodNames> = {
     order: number;
 };
 
-export class RegExpBuilder {
+export class RegExpBuilder<T extends string = string> {
     private flag: 'g' | 'i' | 'ig' | 'm';
     private minimum?: number;
     private maximum?: number;
@@ -82,7 +82,7 @@ export class RegExpBuilder {
      */
     // private expression: string = '';
 
-    constructor(initialValue: string = '') {
+    constructor(initialValue: T = '' as T) {
         this.step = [];
         if (initialValue) {
             this.from(initialValue);
