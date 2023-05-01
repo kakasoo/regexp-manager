@@ -2,17 +2,27 @@ type Merge<F, S> = {
     [K in keyof (F & S)]: K extends keyof S ? S[K] : K extends keyof F ? F[K] : never;
 };
 
-class Builder<T extends Record<PropertyKey, any>> {
+class RegExpPatternBuilder<REGEXP extends string, T extends Record<PropertyKey, any>> {
+    private currentExpression: REGEXP;
     private readonly source: T;
-    constructor(source: T = {} as Record<PropertyKey, any>) {
+    constructor(currentExpression: REGEXP, source: T = {} as Record<PropertyKey, any>) {
+        this.currentExpression = currentExpression;
         this.source = source;
     }
 
-    get(): T {
-        return this.source;
+    get expression(): REGEXP {
+        return this.expression;
     }
 
-    or(): any {}
+    get(): RegExp {
+        return RegExp(this.currentExpression);
+    }
+
+    or<P extends string>(value: P): RegExpPatternBuilder<`${REGEXP}|${P}`, Merge<T, { or: P }>> {
+        const source = this.option<'or', P>('or', value);
+        return new RegExpPatternBuilder(`${this.currentExpression}|${value}`, source);
+    }
+
     and(): any {}
     lessThan(): any {}
     lessThanOrEqual(): any {}
@@ -20,10 +30,11 @@ class Builder<T extends Record<PropertyKey, any>> {
     moreThanOrEqual(): any {}
     between(): any {}
     isOptional(): any {}
-    include(): any {}
+    includes(): any {}
 
-    private option<K extends PropertyKey, P>(key: K, value: P): Builder<Merge<Omit<T, K>, Record<K, P>>> {
-        const newSource = { ...this.source, [key]: value };
-        return new Builder<Omit<T, K> & Record<K, P>>(newSource);
+    private option<K extends PropertyKey, P>(key: K, value: P): Merge<T, Record<K, P>> {
+        return { ...this.source, [key]: value };
     }
 }
+
+// const a = new RegExpPatternBuilder('abc').or('value').get();
