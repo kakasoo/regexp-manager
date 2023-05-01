@@ -2,13 +2,24 @@ type Merge<F, S> = {
     [K in keyof (F & S)]: K extends keyof S ? S[K] : K extends keyof F ? F[K] : never;
 };
 
-class RegExpPatternBuilder<Pattern extends Exclude<string, ''>, T extends Record<PropertyKey, any> = {}> {
-    private currentExpression: Pattern;
-    private readonly source: T;
+type Length<T extends any[]> = T['length'];
+type Push<T extends any[], V> = [...T, V];
+type NTuple<N extends number, T extends any[] = []> = T['length'] extends N ? T : NTuple<N, Push<T, any>>;
+type Add<N1 extends number, N2 extends number> = Length<[...NTuple<N1>, ...NTuple<N2>]>;
+type Sub<A extends number, B extends number> = NTuple<A> extends [...infer U, ...NTuple<B>] ? Length<U> : never;
+type NToNumber<N> = N extends number ? N : never;
 
-    constructor(currentExpression: Pattern, source: T = {} as Record<PropertyKey, any>) {
+class RegExpPatternBuilder<
+    Pattern extends Exclude<string, ''>,
+    T extends Record<string, string>[] = [{ init: Pattern }],
+    Depth extends number = 0,
+> {
+    private currentExpression: Pattern;
+    private readonly status: T;
+
+    constructor(currentExpression: Pattern, status: T = [{ init: currentExpression }] as Record<PropertyKey, any>) {
         this.currentExpression = currentExpression;
-        this.source = source;
+        this.status = status;
     }
 
     get expression(): Pattern {
@@ -16,17 +27,11 @@ class RegExpPatternBuilder<Pattern extends Exclude<string, ''>, T extends Record
     }
 
     get path(): T {
-        return this.source;
+        return this.status;
     }
 
     get(): RegExp {
         return RegExp(this.expression);
-    }
-
-    or<P extends string>(value: P): RegExpPatternBuilder<`${Pattern}|${P}`, Merge<T, { or: P }>> {
-        const source = this.option<'or', P>('or', value);
-        const expression: `${Pattern}|${P}` = `${this.expression}|${value}`;
-        return new RegExpPatternBuilder(expression, source);
     }
 
     and(): any {}
@@ -38,11 +43,20 @@ class RegExpPatternBuilder<Pattern extends Exclude<string, ''>, T extends Record
     isOptional(): any {}
     includes(): any {}
 
-    private option<K extends PropertyKey, P>(key: K, value: P): Merge<T, Record<K, P>> {
-        return { ...this.source, [key]: value };
+    or<P extends string>(
+        value: P,
+    ): RegExpPatternBuilder<`${Pattern}|${P}`, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>> {
+        const status = this.option<'or', P>('or', value);
+        const expression: `${Pattern}|${P}` = `${this.expression}|${value}`;
+        return new RegExpPatternBuilder(expression, status);
+    }
+
+    private option<K extends string, P>(key: K, value: P): [...T, Record<K, P>] {
+        const process: Record<string, P> = { [key]: value };
+        return [...this.status, process];
     }
 }
 
-// const a = new RegExpPatternBuilder('asd').or('value').expression;
-// const b = new RegExpPatternBuilder('').or('value').path;
-// console.log(a);
+// const a = new RegExpPatternBuilder('asd').or('value').or('test').expression; //  "asd|value|test"
+// const b = new RegExpPatternBuilder('asd').or('value').or('test').path;
+// console.log(b, 'b');
