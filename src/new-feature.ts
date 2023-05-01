@@ -2,25 +2,31 @@ type Merge<F, S> = {
     [K in keyof (F & S)]: K extends keyof S ? S[K] : K extends keyof F ? F[K] : never;
 };
 
-class RegExpPatternBuilder<REGEXP extends string, T extends Record<PropertyKey, any>> {
-    private currentExpression: REGEXP;
+class RegExpPatternBuilder<Pattern extends Exclude<string, ''>, T extends Record<PropertyKey, any> = {}> {
+    private currentExpression: Pattern;
     private readonly source: T;
-    constructor(currentExpression: REGEXP, source: T = {} as Record<PropertyKey, any>) {
+
+    constructor(currentExpression: Pattern, source: T = {} as Record<PropertyKey, any>) {
         this.currentExpression = currentExpression;
         this.source = source;
     }
 
-    get expression(): REGEXP {
-        return this.expression;
+    get expression(): Pattern {
+        return this.currentExpression;
+    }
+
+    get path(): T {
+        return this.source;
     }
 
     get(): RegExp {
-        return RegExp(this.currentExpression);
+        return RegExp(this.expression);
     }
 
-    or<P extends string>(value: P): RegExpPatternBuilder<`${REGEXP}|${P}`, Merge<T, { or: P }>> {
+    or<P extends string>(value: P): RegExpPatternBuilder<`${Pattern}|${P}`, Merge<T, { or: P }>> {
         const source = this.option<'or', P>('or', value);
-        return new RegExpPatternBuilder(`${this.currentExpression}|${value}`, source);
+        const expression: `${Pattern}|${P}` = `${this.expression}|${value}`;
+        return new RegExpPatternBuilder(expression, source);
     }
 
     and(): any {}
@@ -37,4 +43,6 @@ class RegExpPatternBuilder<REGEXP extends string, T extends Record<PropertyKey, 
     }
 }
 
-// const a = new RegExpPatternBuilder('abc').or('value').get();
+// const a = new RegExpPatternBuilder('asd').or('value').expression;
+// const b = new RegExpPatternBuilder('').or('value').path;
+// console.log(a);
