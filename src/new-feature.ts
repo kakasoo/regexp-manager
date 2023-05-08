@@ -1,3 +1,6 @@
+/**
+ * util types
+ */
 type Merge<F, S> = {
     [K in keyof (F & S)]: K extends keyof S ? S[K] : K extends keyof F ? F[K] : never;
 };
@@ -8,6 +11,41 @@ type NTuple<N extends number, T extends any[] = []> = T['length'] extends N ? T 
 type Add<N1 extends number, N2 extends number> = Length<[...NTuple<N1>, ...NTuple<N2>]>;
 type Sub<A extends number, B extends number> = NTuple<A> extends [...infer U, ...NTuple<B>] ? Length<U> : never;
 type NToNumber<N> = N extends number ? N : never;
+
+type ToNumber<T> = T extends number ? T : never;
+type ToString<T> = T extends string ? T : T extends number ? `${T}` : never;
+type ToStringTuple<T> = T extends string[] ? T : never;
+type Join<T extends string[], U extends string | number> = T extends [infer F, ...infer Rest]
+    ? Rest extends []
+        ? `${ToString<F>}`
+        : `${ToString<F>}${U}${Join<ToStringTuple<Rest>, U>}`
+    : '';
+
+/**
+ * regexp types
+ */
+type OR<Expression extends string, P extends string> = `${Expression}|${P}`;
+type AND<Expression extends string, P extends string> = Join<[Expression, P], ''>;
+type LessThan<Expression extends string, Count extends number> = `${Expression}{1,${Count}}`;
+type LessThanEqual<Expression extends string, Count extends number> = LessThan<Expression, ToNumber<Add<Count, 1>>>;
+type MoreThan<Expression extends string, Count extends number> = `${Expression}{${Count},}`;
+type MoreThanEqual<Expression extends string, Count extends number> = MoreThan<Expression, ToNumber<Add<Count, 1>>>;
+type Optional<Expression extends string> = `${Expression}?`;
+type Lookahead<Expression extends string, Condition extends string> = `${Expression}(?=${Condition})`;
+type NegativeLookahead<Expression extends string, Condition extends string> = `${Expression}(?!${Condition})`;
+type Lookbehind<Expression extends string, Condition extends string> = `(?<=${Condition})${Expression}`;
+type NegativeLookbehind<Expression extends string, Condition extends string> = `(?<!${Condition})${Expression}`;
+type CapturingGroup<Expression extends string> = `(${Expression})`;
+
+namespace RegExpFlag {
+    type HasIndices = 'd';
+    type Global = 'g';
+    type IgnoreCase = 'i';
+    type Multiline = 'm';
+    type DotAll = 's';
+    type Unicode = 'u';
+    type Sticky = 'y';
+}
 
 export class RegExpPatternBuilder<
     Pattern extends Exclude<string, ''>,
@@ -42,13 +80,12 @@ export class RegExpPatternBuilder<
     between(): any {}
     isOptional(): any {}
     includes(): any {}
+    join(): any {}
 
     or<P extends string>(
         value: () => RegExpPatternBuilder<P>,
-    ): RegExpPatternBuilder<`${Pattern}|${P}`, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
-    or<P extends string>(
-        value: P,
-    ): RegExpPatternBuilder<`${Pattern}|${P}`, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
+    ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
+    or<P extends string>(value: P): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
 
     or<P extends string>(value: P | (() => RegExpPatternBuilder<P>)) {
         if (typeof value === 'string') {
