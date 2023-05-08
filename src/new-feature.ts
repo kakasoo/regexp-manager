@@ -9,7 +9,7 @@ type Add<N1 extends number, N2 extends number> = Length<[...NTuple<N1>, ...NTupl
 type Sub<A extends number, B extends number> = NTuple<A> extends [...infer U, ...NTuple<B>] ? Length<U> : never;
 type NToNumber<N> = N extends number ? N : never;
 
-class RegExpPatternBuilder<
+export class RegExpPatternBuilder<
     Pattern extends Exclude<string, ''>,
     T extends Record<string, string>[] = [{ init: Pattern }],
     Depth extends number = 0,
@@ -30,7 +30,7 @@ class RegExpPatternBuilder<
         return this.status;
     }
 
-    get(): RegExp {
+    getRegExp(): RegExp {
         return RegExp(this.expression);
     }
 
@@ -44,11 +44,23 @@ class RegExpPatternBuilder<
     includes(): any {}
 
     or<P extends string>(
+        value: () => RegExpPatternBuilder<P>,
+    ): RegExpPatternBuilder<`${Pattern}|${P}`, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
+    or<P extends string>(
         value: P,
-    ): RegExpPatternBuilder<`${Pattern}|${P}`, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>> {
-        const status = this.option<'or', P>('or', value);
-        const expression: `${Pattern}|${P}` = `${this.expression}|${value}`;
-        return new RegExpPatternBuilder(expression, status);
+    ): RegExpPatternBuilder<`${Pattern}|${P}`, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
+
+    or<P extends string>(value: P | (() => RegExpPatternBuilder<P>)) {
+        if (typeof value === 'string') {
+            const status = this.option<'or', P>('or', value);
+            const expression: `${Pattern}|${P}` = `${this.expression}|${value}`;
+            return new RegExpPatternBuilder(expression, status);
+        } else {
+            const subExpression = value().currentExpression;
+            const status = this.option<'or', P>('or', subExpression);
+            const expression: `${Pattern}|${P}` = `${this.expression}|${subExpression}`;
+            return new RegExpPatternBuilder(expression, status);
+        }
     }
 
     private option<K extends string, P>(key: K, value: P): [...T, Record<K, P>] {
@@ -56,7 +68,3 @@ class RegExpPatternBuilder<
         return [...this.status, process];
     }
 }
-
-// const a = new RegExpPatternBuilder('asd').or('value').or('test').expression; //  "asd|value|test"
-// const b = new RegExpPatternBuilder('asd').or('value').or('test').path;
-// console.log(b, 'b');

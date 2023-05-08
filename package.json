@@ -30,7 +30,8 @@
     },
     "homepage": "https://github.com/kakasoo/regexp-manager#readme",
     "dependencies": {
-        "typescript": "^4.9.4"
+        "typescript": "^4.9.4",
+        "typia": "^3.8.4"
     },
     "devDependencies": {
         "@types/jest": "^29.2.6",
