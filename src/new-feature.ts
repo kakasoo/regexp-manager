@@ -108,12 +108,20 @@ export class RegExpPatternBuilder<
     moreThan(): any {}
     moreThanOrEqual(): any {}
     between(): any {}
-    isOptional(): any {}
+    isOptional<P extends string>(value: P): Optional<P> {
+        return `${value}?`;
+    }
     includes(): any {}
     join(): any {}
 
     capturing<P extends string>(
-        value: P | (() => RegExpPatternBuilder<P, Record<PropertyKey, any>[], number> | P),
+        value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
+    ): RegExpPatternBuilder<CapturingGroup<P>, Push<T, { capturing: P }>, NToNumber<Add<Depth, 1>>>;
+    capturing<P extends string>(
+        value: P,
+    ): RegExpPatternBuilder<CapturingGroup<P>, Push<T, { capturing: P }>, NToNumber<Add<Depth, 1>>>;
+    capturing<P extends string>(
+        value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P),
     ): RegExpPatternBuilder<CapturingGroup<P>, Push<T, { capturing: P }>, NToNumber<Add<Depth, 1>>> {
         if (typeof value === 'string') {
             const status = this.option<'capturing', P>('capturing', value);
@@ -129,10 +137,10 @@ export class RegExpPatternBuilder<
     }
 
     or<P extends string>(
-        value: () => RegExpPatternBuilder<P> | P,
+        value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
     ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
     or<P extends string>(value: P): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
-    or<P extends string>(value: P | (() => RegExpPatternBuilder<P> | P)) {
+    or<P extends string>(value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P)) {
         if (typeof value === 'string') {
             const status = this.option<'or', P>('or', value);
             const expression: `${Pattern}|${P}` = `${this.expression}|${value}`;
@@ -147,12 +155,12 @@ export class RegExpPatternBuilder<
     }
 
     and<P extends string>(
-        value: () => RegExpPatternBuilder<P> | P,
+        value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
     ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
     and<P extends string>(
         value: P,
     ): RegExpPatternBuilder<AND<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
-    and<P extends string>(value: P | (() => RegExpPatternBuilder<P> | P)) {
+    and<P extends string>(value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P)) {
         if (typeof value === 'string') {
             const status = this.option<'and', P>('and', value);
             const expression: `${Pattern}${P}` = `${this.expression}${value}`;

@@ -102,6 +102,14 @@ describe('check "capturing" method work correctly.', () => {
         });
         assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
     });
+
+    it('capturing A or capturing B', () => {
+        const capturingAOrB = new RegExpPatternBuilder()
+            .capturing('A')
+            .or(() => new RegExpPatternBuilder().capturing('B'));
+
+        assert.deepStrictEqual(capturingAOrB.expression, '(A)|(B)');
+    });
 });
 
 describe('test combining methods', () => {
