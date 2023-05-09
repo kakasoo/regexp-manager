@@ -36,6 +36,36 @@ type NegativeLookahead<Expression extends string, Condition extends string> = `$
 type Lookbehind<Expression extends string, Condition extends string> = `(?<=${Condition})${Expression}`;
 type NegativeLookbehind<Expression extends string, Condition extends string> = `(?<!${Condition})${Expression}`;
 type CapturingGroup<Expression extends string> = `(${Expression})`;
+type KoreanAlphabet = `[\\uac00-\\ud7a3]`;
+type AlphabetTuple = [
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'g',
+    'h',
+    'i',
+    'j',
+    'k',
+    'l',
+    'm',
+    'n',
+    'o',
+    'p',
+    'q',
+    'r',
+    's',
+    't',
+    'u',
+    'v',
+    'w',
+    'x',
+    'y',
+    'z',
+];
+type LowercaseAlphabet = AlphabetTuple[number];
+type UppercaseAlphabet = Uppercase<AlphabetTuple[number]>;
 
 namespace RegExpFlag {
     type HasIndices = 'd';
