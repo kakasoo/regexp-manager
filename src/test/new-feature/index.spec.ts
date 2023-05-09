@@ -88,6 +88,22 @@ describe('check "and" method work correctly.', () => {
     });
 });
 
+describe('check "capturing" method work correctly.', () => {
+    it('When capturing is used, the existing results are enclosed in brackets.', () => {
+        const leftAndRight = new RegExpPatternBuilder().capturing(() => {
+            return new RegExpPatternBuilder('left').and('right');
+        });
+        assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
+    });
+
+    it('When capturing is used, the existing results are enclosed in brackets.', () => {
+        const leftAndRight = new RegExpPatternBuilder().capturing(() => {
+            return new RegExpPatternBuilder('left').and('right').expression;
+        });
+        assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
+    });
+});
+
 describe('test combining methods', () => {
     it('or, and', async () => {
         const colors = new RegExpPatternBuilder('red').and('orange').or('blue');

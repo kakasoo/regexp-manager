@@ -86,7 +86,7 @@ export class RegExpPatternBuilder<
     private currentExpression: Pattern;
     private readonly status: T;
 
-    constructor(currentExpression: Pattern, status: T = [{ init: currentExpression }] as Record<PropertyKey, any>) {
+    constructor(currentExpression: Pattern = '' as Pattern, status: T = [{ init: currentExpression }] as any) {
         this.currentExpression = currentExpression;
         this.status = status;
     }
@@ -112,11 +112,26 @@ export class RegExpPatternBuilder<
     includes(): any {}
     join(): any {}
 
+    capturing<P extends string>(
+        value: P | (() => RegExpPatternBuilder<P, Record<PropertyKey, any>[], number> | P),
+    ): RegExpPatternBuilder<CapturingGroup<P>, Push<T, { capturing: P }>, NToNumber<Add<Depth, 1>>> {
+        if (typeof value === 'string') {
+            const status = this.option<'capturing', P>('capturing', value);
+            const expression: CapturingGroup<P> = `(${value})`;
+            return new RegExpPatternBuilder(expression, status);
+        } else {
+            const evaluated = value();
+            const subExpression = typeof evaluated === 'string' ? evaluated : evaluated.currentExpression;
+            const status = this.option<'capturing', P>('capturing', subExpression);
+            const expression: CapturingGroup<P> = `(${subExpression})`;
+            return new RegExpPatternBuilder(expression, status);
+        }
+    }
+
     or<P extends string>(
         value: () => RegExpPatternBuilder<P> | P,
     ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
     or<P extends string>(value: P): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
-
     or<P extends string>(value: P | (() => RegExpPatternBuilder<P> | P)) {
         if (typeof value === 'string') {
             const status = this.option<'or', P>('or', value);
@@ -129,11 +144,6 @@ export class RegExpPatternBuilder<
             const expression: `${Pattern}|${P}` = `${this.expression}|${subExpression}`;
             return new RegExpPatternBuilder(expression, status);
         }
-    }
-
-    private option<K extends string, P>(key: K, value: P): [...T, Record<K, P>] {
-        const process: Record<string, P> = { [key]: value };
-        return [...this.status, process];
     }
 
     and<P extends string>(
@@ -154,5 +164,10 @@ export class RegExpPatternBuilder<
             const expression: `${Pattern}${P}` = `${this.expression}${subExpression}`;
             return new RegExpPatternBuilder(expression, status);
         }
+    }
+
+    private option<K extends string, P>(key: K, value: P): [...T, Record<K, P>] {
+        const process: Record<string, P> = { [key]: value };
+        return [...this.status, process];
     }
 }
