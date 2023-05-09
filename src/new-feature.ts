@@ -78,9 +78,15 @@ namespace RegExpFlag {
     type Sticky = 'y';
 }
 
+type MethodNames<T> = {
+    [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T];
+
+type RegExpTypeName = Exclude<MethodNames<RegExpPatternBuilder<any>>, 'expression' | 'getRegExp'> | 'init';
+
 export class RegExpPatternBuilder<
     Pattern extends Exclude<string, ''>,
-    T extends Record<string, string>[] = [{ init: Pattern }],
+    T extends Partial<Record<RegExpTypeName, string>>[] = [{ init: Pattern }],
     Depth extends number = 0,
 > {
     private currentExpression: Pattern;
