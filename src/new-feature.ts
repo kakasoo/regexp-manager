@@ -103,7 +103,6 @@ export class RegExpPatternBuilder<
         return RegExp(this.expression);
     }
 
-    and(): any {}
     lessThan(): any {}
     lessThanOrEqual(): any {}
     moreThan(): any {}
@@ -135,5 +134,25 @@ export class RegExpPatternBuilder<
     private option<K extends string, P>(key: K, value: P): [...T, Record<K, P>] {
         const process: Record<string, P> = { [key]: value };
         return [...this.status, process];
+    }
+
+    and<P extends string>(
+        value: () => RegExpPatternBuilder<P> | P,
+    ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
+    and<P extends string>(
+        value: P,
+    ): RegExpPatternBuilder<AND<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
+    and<P extends string>(value: P | (() => RegExpPatternBuilder<P> | P)) {
+        if (typeof value === 'string') {
+            const status = this.option<'and', P>('and', value);
+            const expression: `${Pattern}${P}` = `${this.expression}${value}`;
+            return new RegExpPatternBuilder(expression, status);
+        } else {
+            const evaluated = value();
+            const subExpression = typeof evaluated === 'string' ? evaluated : evaluated.currentExpression;
+            const status = this.option<'and', P>('and', subExpression);
+            const expression: `${Pattern}${P}` = `${this.expression}${subExpression}`;
+            return new RegExpPatternBuilder(expression, status);
+        }
     }
 }

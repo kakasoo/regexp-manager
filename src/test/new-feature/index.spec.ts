@@ -65,3 +65,25 @@ describe('check "or" method work correctly.', () => {
     //     assert.deepStrictEqual(leftOrRight, 'left|right');
     // });
 });
+
+describe('check "and" method work correctly.', () => {
+    it('and method have to add initial value as string.', () => {
+        const leftAndRight = new RegExpPatternBuilder('left').and('right');
+        assert.deepStrictEqual(leftAndRight.expression, 'leftright');
+    });
+
+    it('and method have to add initial value as string.', () => {
+        const sringAndNumber = new RegExpPatternBuilder('[0-9]').and('[a-zA-Z]');
+        assert.deepStrictEqual(sringAndNumber.expression, '[0-9][a-zA-Z]');
+    });
+
+    it('and method have to add initial value as sub expression(return builder).', () => {
+        const sringAndNumber = new RegExpPatternBuilder('[0-9]').and(() => new RegExpPatternBuilder('[a-zA-Z]'));
+        assert.deepStrictEqual(sringAndNumber.expression, '[0-9][a-zA-Z]');
+    });
+
+    it('and method have to add initial value as sub expression(return string).', () => {
+        const sringAndNumber = new RegExpPatternBuilder('[0-9]').and(() => '[a-zA-Z]');
+        assert.deepStrictEqual(sringAndNumber.expression, '[0-9][a-zA-Z]');
+    });
+});
