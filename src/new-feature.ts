@@ -36,7 +36,7 @@ type NegativeLookahead<Expression extends string, Condition extends string> = `$
 type Lookbehind<Expression extends string, Condition extends string> = `(?<=${Condition})${Expression}`;
 type NegativeLookbehind<Expression extends string, Condition extends string> = `(?<!${Condition})${Expression}`;
 type CapturingGroup<Expression extends string> = `(${Expression})`;
-type KoreanAlphabet = `[\\uac00-\\ud7a3]`;
+type KoreanAlphabet = `[\\uac00-\\ud7a3]`; // 44032-55203
 type AlphabetTuple = [
     'a',
     'b',
@@ -66,6 +66,7 @@ type AlphabetTuple = [
 ];
 type LowercaseAlphabet = AlphabetTuple[number];
 type UppercaseAlphabet = Uppercase<AlphabetTuple[number]>;
+type Hexadecimal = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
 
 namespace RegExpFlag {
     type HasIndices = 'd';
@@ -113,17 +114,18 @@ export class RegExpPatternBuilder<
     join(): any {}
 
     or<P extends string>(
-        value: () => RegExpPatternBuilder<P>,
+        value: () => RegExpPatternBuilder<P> | P,
     ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
     or<P extends string>(value: P): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
 
-    or<P extends string>(value: P | (() => RegExpPatternBuilder<P>)) {
+    or<P extends string>(value: P | (() => RegExpPatternBuilder<P> | P)) {
         if (typeof value === 'string') {
             const status = this.option<'or', P>('or', value);
             const expression: `${Pattern}|${P}` = `${this.expression}|${value}`;
             return new RegExpPatternBuilder(expression, status);
         } else {
-            const subExpression = value().currentExpression;
+            const evaluated = value();
+            const subExpression = typeof evaluated === 'string' ? evaluated : evaluated.currentExpression;
             const status = this.option<'or', P>('or', subExpression);
             const expression: `${Pattern}|${P}` = `${this.expression}|${subExpression}`;
             return new RegExpPatternBuilder(expression, status);

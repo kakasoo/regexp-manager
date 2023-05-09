@@ -22,8 +22,13 @@ describe('check "or" method work correctly.', () => {
         assert.deepStrictEqual(sringOrNumber.expression, '[0-9]|[a-zA-Z]');
     });
 
-    it('or method have to add initial value as sub expression.', () => {
+    it('or method have to add initial value as sub expression(return builder).', () => {
         const sringOrNumber = new RegExpPatternBuilder('[0-9]').or(() => new RegExpPatternBuilder('[a-zA-Z]'));
+        assert.deepStrictEqual(sringOrNumber.expression, '[0-9]|[a-zA-Z]');
+    });
+
+    it('or method have to add initial value as sub expression(return string).', () => {
+        const sringOrNumber = new RegExpPatternBuilder('[0-9]').or(() => '[a-zA-Z]');
         assert.deepStrictEqual(sringOrNumber.expression, '[0-9]|[a-zA-Z]');
     });
 
