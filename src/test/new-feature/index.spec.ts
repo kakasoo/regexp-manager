@@ -87,3 +87,10 @@ describe('check "and" method work correctly.', () => {
         assert.deepStrictEqual(sringAndNumber.expression, '[0-9][a-zA-Z]');
     });
 });
+
+describe('test combining methods', () => {
+    it('or, and', async () => {
+        const colors = new RegExpPatternBuilder('red').and('orange').or('blue');
+        assert.deepStrictEqual(colors.expression, 'redorange|blue');
+    });
+});
