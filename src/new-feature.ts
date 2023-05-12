@@ -114,9 +114,29 @@ export class RegExpPatternBuilder<
     moreThan(): any {}
     moreThanOrEqual(): any {}
     between(): any {}
-    isOptional<P extends string>(value: P): Optional<P> {
-        return `${value}?`;
+
+    optional<P extends string>(
+        value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
+    ): RegExpPatternBuilder<Optional<P>, Push<T, { optional: P }>, NToNumber<Add<Depth, 1>>>;
+    optional<P extends string>(
+        value: P,
+    ): RegExpPatternBuilder<Optional<P>, Push<T, { optional: P }>, NToNumber<Add<Depth, 1>>>;
+    optional<P extends string>(
+        value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P),
+    ): RegExpPatternBuilder<Optional<P>, Push<T, { optional: P }>, NToNumber<Add<Depth, 1>>> {
+        if (typeof value === 'string') {
+            const status = this.option<'optional', P>('optional', value);
+            const expression: Optional<P> = `${value}?`;
+            return new RegExpPatternBuilder(expression, status);
+        } else {
+            const evaluated = value();
+            const subExpression = typeof evaluated === 'string' ? evaluated : evaluated.currentExpression;
+            const status = this.option<'optional', P>('optional', subExpression);
+            const expression: Optional<P> = `${subExpression}?`;
+            return new RegExpPatternBuilder(expression, status);
+        }
     }
+
     includes(): any {}
     join(): any {}
 
