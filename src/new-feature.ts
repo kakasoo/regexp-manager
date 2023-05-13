@@ -17,7 +17,7 @@ type ToString<T> = T extends string ? T : T extends number ? `${T}` : never;
 type ToStringTuple<T> = T extends string[] ? T : never;
 type Join<T extends string[], U extends string | number> = T extends [infer F, ...infer Rest]
     ? Rest extends []
-        ? `${ToString<F>}`
+        ? F
         : `${ToString<F>}${U}${Join<ToStringTuple<Rest>, U>}`
     : '';
 
@@ -25,7 +25,8 @@ type Join<T extends string[], U extends string | number> = T extends [infer F, .
  * regexp types
  */
 type OR<Expression extends string, P extends string> = `${Expression}|${P}`;
-type AND<Expression extends string, P extends string> = Join<[Expression, P], ''>;
+// type AND<Expression extends string, P extends string> = Join<[Expression, P], ''>;
+type AND<Expression extends string, P extends string> = `${Expression}${P}`;
 type LessThan<Expression extends string, Count extends number> = `${Expression}{1,${Count}}`;
 type LessThanEqual<Expression extends string, Count extends number> = LessThan<Expression, ToNumber<Add<Count, 1>>>;
 type MoreThan<Expression extends string, Count extends number> = `${Expression}{${Count},}`;
@@ -105,6 +106,14 @@ export class RegExpPatternBuilder<
         return this.status;
     }
 
+    /**
+     * Check that the results of the two regular expression builders are the same.
+     * Returns true if the final result is the same, even if it is made in different ways.
+     *
+     * @returns boolean
+     */
+    equals() {}
+
     getRegExp(): RegExp {
         return RegExp(this.expression);
     }
@@ -114,6 +123,8 @@ export class RegExpPatternBuilder<
     moreThan(): any {}
     moreThanOrEqual(): any {}
     between(): any {}
+    includes(): any {}
+    join(): any {}
 
     optional<P extends string>(
         value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
@@ -124,21 +135,11 @@ export class RegExpPatternBuilder<
     optional<P extends string>(
         value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P),
     ): RegExpPatternBuilder<Optional<P>, Push<T, { optional: P }>, NToNumber<Add<Depth, 1>>> {
-        if (typeof value === 'string') {
-            const status = this.option<'optional', P>('optional', value);
-            const expression: Optional<P> = `${value}?`;
-            return new RegExpPatternBuilder(expression, status);
-        } else {
-            const evaluated = value();
-            const subExpression = typeof evaluated === 'string' ? evaluated : evaluated.currentExpression;
-            const status = this.option<'optional', P>('optional', subExpression);
-            const expression: Optional<P> = `${subExpression}?`;
-            return new RegExpPatternBuilder(expression, status);
-        }
+        const operand = typeof value === 'string' ? value : this.getValue(value);
+        const status = this.option('optional', operand);
+        const expression: Optional<P> = `${operand}?`;
+        return new RegExpPatternBuilder(expression, status);
     }
-
-    includes(): any {}
-    join(): any {}
 
     capturing<P extends string>(
         value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
@@ -149,17 +150,10 @@ export class RegExpPatternBuilder<
     capturing<P extends string>(
         value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P),
     ): RegExpPatternBuilder<CapturingGroup<P>, Push<T, { capturing: P }>, NToNumber<Add<Depth, 1>>> {
-        if (typeof value === 'string') {
-            const status = this.option<'capturing', P>('capturing', value);
-            const expression: CapturingGroup<P> = `(${value})`;
-            return new RegExpPatternBuilder(expression, status);
-        } else {
-            const evaluated = value();
-            const subExpression = typeof evaluated === 'string' ? evaluated : evaluated.currentExpression;
-            const status = this.option<'capturing', P>('capturing', subExpression);
-            const expression: CapturingGroup<P> = `(${subExpression})`;
-            return new RegExpPatternBuilder(expression, status);
-        }
+        const operand = typeof value === 'string' ? value : this.getValue(value);
+        const status = this.option('capturing', operand);
+        const expression: CapturingGroup<P> = `(${operand})`;
+        return new RegExpPatternBuilder(expression, status);
     }
 
     or<P extends string>(
@@ -167,37 +161,28 @@ export class RegExpPatternBuilder<
     ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
     or<P extends string>(value: P): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
     or<P extends string>(value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P)) {
-        if (typeof value === 'string') {
-            const status = this.option<'or', P>('or', value);
-            const expression: `${Pattern}|${P}` = `${this.expression}|${value}`;
-            return new RegExpPatternBuilder(expression, status);
-        } else {
-            const evaluated = value();
-            const subExpression = typeof evaluated === 'string' ? evaluated : evaluated.currentExpression;
-            const status = this.option<'or', P>('or', subExpression);
-            const expression: `${Pattern}|${P}` = `${this.expression}|${subExpression}`;
-            return new RegExpPatternBuilder(expression, status);
-        }
+        const operand = typeof value === 'string' ? value : this.getValue(value);
+        const status = this.option('or', operand);
+        const expression: `${Pattern}|${P}` = `${this.expression}|${operand}`;
+        return new RegExpPatternBuilder(expression, status);
     }
 
     and<P extends string>(
         value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
-    ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
+    ): RegExpPatternBuilder<AND<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
     and<P extends string>(
         value: P,
     ): RegExpPatternBuilder<AND<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
     and<P extends string>(value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P)) {
-        if (typeof value === 'string') {
-            const status = this.option<'and', P>('and', value);
-            const expression: `${Pattern}${P}` = `${this.expression}${value}`;
-            return new RegExpPatternBuilder(expression, status);
-        } else {
-            const evaluated = value();
-            const subExpression = typeof evaluated === 'string' ? evaluated : evaluated.currentExpression;
-            const status = this.option<'and', P>('and', subExpression);
-            const expression: `${Pattern}${P}` = `${this.expression}${subExpression}`;
-            return new RegExpPatternBuilder(expression, status);
-        }
+        const operand = typeof value === 'string' ? value : this.getValue(value);
+        const status = this.option('and', operand);
+        const expression: `${Pattern}${P}` = `${this.expression}${operand}`;
+        return new RegExpPatternBuilder(expression, status);
+    }
+
+    private getValue<P extends string>(value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P): P {
+        const result = value();
+        return typeof result === 'string' ? result : result.currentExpression;
     }
 
     private option<K extends string, P>(key: K, value: P): [...T, Record<K, P>] {
