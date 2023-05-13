@@ -36,6 +36,11 @@ type LessThan<Expression extends string, Count extends number> = `${Expression}{
 type LessThanOrEqual<Expression extends string, Count extends number> = `${Expression}{1,${Count}}`;
 type MoreThan<Expression extends string, Count extends number> = `${Expression}{${Add<Count, 1>},}`;
 type MoreThanOrEqual<Expression extends string, Count extends number> = `${Expression}{${Count},}`;
+type Between<
+    Expression extends string,
+    Count1 extends number,
+    Count2 extends number,
+> = `${Expression}{${Count1},${Count2}}`;
 type Optional<Expression extends string> = `${Expression}?`;
 type Lookahead<Expression extends string, Condition extends string> = `${Expression}(?=${Condition})`;
 type NegativeLookahead<Expression extends string, Condition extends string> = `${Expression}(?!${Condition})`;
@@ -172,7 +177,16 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
-    between(): any {}
+    between<N1 extends number, N2 extends number>(
+        value1: N1,
+        value2: N2,
+    ): RegExpPatternBuilder<Between<Pattern, N1, N2>, Push<T, { between: `${N1},${N2}` }>, NToNumber<Add<Depth, 1>>> {
+        const operand: `${N1},${N2}` = `${value1},${value2}`;
+        const status = this.option('between', operand);
+        const expression: Between<Pattern, N1, N2> = `${this.expression}{${value1},${value2}}`;
+        return new RegExpPatternBuilder(expression, status);
+    }
+
     includes(): any {}
     join(): any {}
 
