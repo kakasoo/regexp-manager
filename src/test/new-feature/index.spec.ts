@@ -115,6 +115,13 @@ describe('check "capturing" method work correctly.', () => {
 describe('check "lessThan" method work correctly', () => {
     it('lessThan', () => {
         const tenOfA = new RegExpPatternBuilder('a').lessThan(10);
+        assert.deepStrictEqual(tenOfA.expression, 'a{1,9}');
+    });
+});
+
+describe('check "lessThan" method work correctly', () => {
+    it('lessThan', () => {
+        const tenOfA = new RegExpPatternBuilder('a').lessThanOrEqual(10);
         assert.deepStrictEqual(tenOfA.expression, 'a{1,10}');
     });
 });

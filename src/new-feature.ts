@@ -27,10 +27,10 @@ type Join<T extends string[], U extends string | number> = T extends [infer F, .
 type OR<Expression extends string, P extends string> = `${Expression}|${P}`;
 // type AND<Expression extends string, P extends string> = Join<[Expression, P], ''>;
 type AND<Expression extends string, P extends string> = `${Expression}${P}`;
-type LessThan<Expression extends string, Count extends number> = `${Expression}{1,${Count}}`;
-type LessThanEqual<Expression extends string, Count extends number> = LessThan<Expression, ToNumber<Add<Count, 1>>>;
-type MoreThan<Expression extends string, Count extends number> = `${Expression}{${Count},}`;
-type MoreThanEqual<Expression extends string, Count extends number> = MoreThan<Expression, ToNumber<Add<Count, 1>>>;
+type LessThan<Expression extends string, Count extends number> = `${Expression}{1,${Sub<Count, 1>}}`;
+type LessThanOrEqual<Expression extends string, Count extends number> = `${Expression}{1,${Count}}`;
+type MoreThan<Expression extends string, Count extends number> = `${Expression}{${NToNumber<Add<Count, 1>>},}`;
+type MoreThanOrEqual<Expression extends string, Count extends number> = `${Expression}{${Count},}`;
 type Optional<Expression extends string> = `${Expression}?`;
 type Lookahead<Expression extends string, Condition extends string> = `${Expression}(?=${Condition})`;
 type NegativeLookahead<Expression extends string, Condition extends string> = `${Expression}(?!${Condition})`;
@@ -127,11 +127,23 @@ export class RegExpPatternBuilder<
     ): RegExpPatternBuilder<LessThan<Pattern, P>, Push<T, { lessThan: `${P}` }>, NToNumber<Add<Depth, 1>>> {
         const operand: `${P}` = `${value}`;
         const status = this.option('lessThan', operand);
-        const expression: LessThan<Pattern, P> = `${this.expression}{1,${value}}`;
+        const expression: LessThan<Pattern, P> = `${this.expression}{1,${(value - 1) as Sub<P, 1>}}`;
         return new RegExpPatternBuilder(expression, status);
     }
 
-    lessThanOrEqual(): any {}
+    lessThanOrEqual<P extends number>(
+        value: P,
+    ): RegExpPatternBuilder<
+        LessThanOrEqual<Pattern, P>,
+        Push<T, { lessThanOrEqual: `${P}` }>,
+        NToNumber<Add<Depth, 1>>
+    > {
+        const operand: `${P}` = `${value}`;
+        const status = this.option('lessThanOrEqual', operand);
+        const expression: LessThanOrEqual<Pattern, P> = `${this.expression}{1,${value}}`;
+        return new RegExpPatternBuilder(expression, status);
+    }
+
     moreThan(): any {}
     moreThanOrEqual(): any {}
     between(): any {}
