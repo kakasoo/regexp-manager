@@ -8,7 +8,12 @@ type Merge<F, S> = {
 type Length<T extends any[]> = T['length'];
 type Push<T extends any[], V> = [...T, V];
 type NTuple<N extends number, T extends any[] = []> = T['length'] extends N ? T : NTuple<N, Push<T, any>>;
-type Add<N1 extends number, N2 extends number> = Length<[...NTuple<N1>, ...NTuple<N2>]>;
+
+// type Add<N1 extends number, N2 extends number> = Length<[...NTuple<N1>, ...NTuple<N2>]>;
+type Add<N1 extends number, N2 extends number> = [...NTuple<N1>, ...NTuple<N2>] extends [...infer U]
+    ? Length<U>
+    : never;
+
 type Sub<A extends number, B extends number> = NTuple<A> extends [...infer U, ...NTuple<B>] ? Length<U> : never;
 type NToNumber<N> = N extends number ? N : never;
 
@@ -29,7 +34,7 @@ type OR<Expression extends string, P extends string> = `${Expression}|${P}`;
 type AND<Expression extends string, P extends string> = `${Expression}${P}`;
 type LessThan<Expression extends string, Count extends number> = `${Expression}{1,${Sub<Count, 1>}}`;
 type LessThanOrEqual<Expression extends string, Count extends number> = `${Expression}{1,${Count}}`;
-type MoreThan<Expression extends string, Count extends number> = `${Expression}{${NToNumber<Add<Count, 1>>},}`;
+type MoreThan<Expression extends string, Count extends number> = `${Expression}{${Add<Count, 1>},}`;
 type MoreThanOrEqual<Expression extends string, Count extends number> = `${Expression}{${Count},}`;
 type Optional<Expression extends string> = `${Expression}?`;
 type Lookahead<Expression extends string, Condition extends string> = `${Expression}(?=${Condition})`;
@@ -144,8 +149,29 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
-    moreThan(): any {}
-    moreThanOrEqual(): any {}
+    moreThan<P extends number>(
+        value: P,
+    ): RegExpPatternBuilder<MoreThan<Pattern, P>, Push<T, { moreThan: `${P}` }>, NToNumber<Add<Depth, 1>>> {
+        const operand: `${P}` = `${value}`;
+        const status = this.option('moreThan', operand);
+        const addOne = (value + 1) as Add<P, 1>;
+        const expression: MoreThan<Pattern, P> = `${this.expression}{${addOne},}`;
+        return new RegExpPatternBuilder(expression, status);
+    }
+
+    moreThanOrEqual<P extends number>(
+        value: P,
+    ): RegExpPatternBuilder<
+        MoreThanOrEqual<Pattern, P>,
+        Push<T, { moreThanOrEqual: `${P}` }>,
+        NToNumber<Add<Depth, 1>>
+    > {
+        const operand: `${P}` = `${value}`;
+        const status = this.option('moreThanOrEqual', operand);
+        const expression: MoreThanOrEqual<Pattern, P> = `${this.expression}{${value},}`;
+        return new RegExpPatternBuilder(expression, status);
+    }
+
     between(): any {}
     includes(): any {}
     join(): any {}
