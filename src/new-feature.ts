@@ -118,7 +118,19 @@ export class RegExpPatternBuilder<
         return RegExp(this.expression);
     }
 
-    lessThan(): any {}
+    /**
+     * a letter or group that repeats less than that number
+     * @param value limit
+     */
+    lessThan<P extends number>(
+        value: P,
+    ): RegExpPatternBuilder<LessThan<Pattern, P>, Push<T, { lessThan: `${P}` }>, NToNumber<Add<Depth, 1>>> {
+        const operand: `${P}` = `${value}`;
+        const status = this.option('lessThan', operand);
+        const expression: LessThan<Pattern, P> = `${this.expression}{1,${value}}`;
+        return new RegExpPatternBuilder(expression, status);
+    }
+
     lessThanOrEqual(): any {}
     moreThan(): any {}
     moreThanOrEqual(): any {}
@@ -185,7 +197,7 @@ export class RegExpPatternBuilder<
         return typeof result === 'string' ? result : result.currentExpression;
     }
 
-    private option<K extends string, P>(key: K, value: P): [...T, Record<K, P>] {
+    private option<K extends RegExpTypeName, P>(key: K, value: P): [...T, Record<K, P>] {
         const process: Record<string, P> = { [key]: value };
         return [...this.status, process];
     }

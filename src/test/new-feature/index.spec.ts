@@ -112,6 +112,13 @@ describe('check "capturing" method work correctly.', () => {
     });
 });
 
+describe('check "lessThan" method work correctly', () => {
+    it('lessThan', () => {
+        const tenOfA = new RegExpPatternBuilder('a').lessThan(10);
+        assert.deepStrictEqual(tenOfA.expression, 'a{1,10}');
+    });
+});
+
 describe('test combining methods', () => {
     it('or, and', async () => {
         const colors = new RegExpPatternBuilder('red').and('orange').or('blue');
