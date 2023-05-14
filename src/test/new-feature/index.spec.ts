@@ -114,15 +114,29 @@ describe('check "capturing" method work correctly.', () => {
 
 describe('check "lessThan" method work correctly', () => {
     it('lessThan', () => {
-        const tenOfA = new RegExpPatternBuilder('a').lessThan(10);
-        assert.deepStrictEqual(tenOfA.expression, 'a{1,9}');
+        const lessThanTen = new RegExpPatternBuilder('a').lessThan(10);
+        assert.deepStrictEqual(lessThanTen.expression, 'a{1,9}');
     });
 });
 
-describe('check "lessThan" method work correctly', () => {
-    it('lessThan', () => {
-        const tenOfA = new RegExpPatternBuilder('a').lessThanOrEqual(10);
-        assert.deepStrictEqual(tenOfA.expression, 'a{1,10}');
+describe('check "lessThanOrEqual" method work correctly', () => {
+    it('lessThanOrEqual', () => {
+        const lessThanOrEqualTen = new RegExpPatternBuilder('a').lessThanOrEqual(10);
+        assert.deepStrictEqual(lessThanOrEqualTen.expression, 'a{1,10}');
+    });
+});
+
+describe('check "moreThan" method work correctly', () => {
+    it('moreThan', () => {
+        const moreThanThree = new RegExpPatternBuilder('a').moreThan(3);
+        assert.deepStrictEqual(moreThanThree.expression, 'a{4,}');
+    });
+});
+
+describe('check "moreThanOrEqual" method work correctly', () => {
+    it('moreThanOrEqual', () => {
+        const moreThanOrEqualThree = new RegExpPatternBuilder('a').moreThanOrEqual(3);
+        assert.deepStrictEqual(moreThanOrEqualThree.expression, 'a{3,}');
     });
 });
 
@@ -136,29 +150,29 @@ describe('equals', () => {
 
 describe('check includes("left", P)', () => {
     it('lookbehind', () => {
-        const AafterB = new RegExpPatternBuilder('b').includes('LEFT', 'a');
-        assert.deepStrictEqual(AafterB.expression, '(?<=a)b');
+        const lookbehind = new RegExpPatternBuilder('b').includes('LEFT', 'a');
+        assert.deepStrictEqual(lookbehind.expression, '(?<=a)b');
     });
 });
 
 describe('check includes("right", P)', () => {
     it('lookahead', () => {
-        const AafterB = new RegExpPatternBuilder('b').includes('RIGHT', 'a');
-        assert.deepStrictEqual(AafterB.expression, 'b(?=a)');
+        const lookahead = new RegExpPatternBuilder('b').includes('RIGHT', 'a');
+        assert.deepStrictEqual(lookahead.expression, 'b(?=a)');
     });
 });
 
 describe('check excludes("left", P)', () => {
     it('negative lookbehind', () => {
-        const AafterB = new RegExpPatternBuilder('b').excludes('LEFT', 'a');
-        assert.deepStrictEqual(AafterB.expression, '(?<!a)b');
+        const nagativeLookbhind = new RegExpPatternBuilder('b').excludes('LEFT', 'a');
+        assert.deepStrictEqual(nagativeLookbhind.expression, '(?<!a)b');
     });
 });
 
 describe('check exclude("right", P)', () => {
-    it('lookahead', () => {
-        const AafterB = new RegExpPatternBuilder('b').excludes('RIGHT', 'a');
-        assert.deepStrictEqual(AafterB.expression, 'b(?!a)');
+    it('negative lookahead', () => {
+        const negativeLookahead = new RegExpPatternBuilder('b').excludes('RIGHT', 'a');
+        assert.deepStrictEqual(negativeLookahead.expression, 'b(?!a)');
     });
 });
 
@@ -166,5 +180,12 @@ describe('test combining methods', () => {
     it('or, and', async () => {
         const colors = new RegExpPatternBuilder('red').and('orange').or('blue');
         assert.deepStrictEqual(colors.expression, 'redorange|blue');
+    });
+
+    it('phone-number', () => {
+        const koreanPhoneNumber = new RegExpPatternBuilder('')
+            .capturing(() => new RegExpPatternBuilder('010').or('011'))
+            .and(() => new RegExpPatternBuilder('[0-9]').between(3, 4))
+            .and(() => new RegExpPatternBuilder('[0-9]').between(4, 4)).expression;
     });
 });
