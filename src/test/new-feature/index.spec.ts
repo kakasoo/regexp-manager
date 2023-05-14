@@ -134,6 +134,20 @@ describe('equals', () => {
     });
 });
 
+describe('check includes("left", P)', () => {
+    it('lookbehind', () => {
+        const AafterB = new RegExpPatternBuilder('b').includes('LEFT', 'a');
+        assert.deepStrictEqual(AafterB.expression, '(?<=a)b');
+    });
+});
+
+describe('check includes("right", P)', () => {
+    it('lookahead', () => {
+        const AafterB = new RegExpPatternBuilder('b').includes('RIGHT', 'a');
+        assert.deepStrictEqual(AafterB.expression, 'b(?=a)');
+    });
+});
+
 describe('test combining methods', () => {
     it('or, and', async () => {
         const colors = new RegExpPatternBuilder('red').and('orange').or('blue');

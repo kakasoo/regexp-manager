@@ -13,7 +13,8 @@
         "baseUrl": "./",
         "noLib": false,
         "lib": ["ES2022"],
-        "typeRoots": ["src/types", "node_modules/@types"]
+        "typeRoots": ["src/types", "node_modules/@types"],
+        "strict": true
     },
     "include": ["src/**/*.ts", "src/types/index.d.ts"],
     "exclude": ["node_modules", "src/test", "src/test/example"]

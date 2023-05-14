@@ -94,7 +94,13 @@ type MethodNames<T> = {
     [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
 }[keyof T];
 
-type RegExpTypeName = Exclude<MethodNames<RegExpPatternBuilder<any>>, 'expression' | 'getRegExp'> | 'init';
+type RegExpTypeName =
+    | Exclude<MethodNames<RegExpPatternBuilder<any>>, 'expression' | 'getRegExp'>
+    | 'init'
+    | 'lookahead'
+    | 'lookbehind'
+    | 'negativeLookahead'
+    | 'negativeLookbehind';
 
 export class RegExpPatternBuilder<
     Pattern extends Exclude<string, ''>,
@@ -144,6 +150,10 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
+    /**
+     * a letter or group that equals or repeats less than that number
+     * @param value
+     */
     lessThanOrEqual<P extends number>(
         value: P,
     ): RegExpPatternBuilder<
@@ -157,6 +167,10 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
+    /**
+     * a letter or group that repeats more than that number
+     * @param value
+     */
     moreThan<P extends number>(
         value: P,
     ): RegExpPatternBuilder<MoreThan<Pattern, P>, Push<T, { moreThan: `${P}` }>, NToNumber<Add<Depth, 1>>> {
@@ -167,6 +181,10 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
+    /**
+     * a letter or group that equals or repeats more than that number
+     * @param value
+     */
     moreThanOrEqual<P extends number>(
         value: P,
     ): RegExpPatternBuilder<
@@ -180,6 +198,11 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
+    /**
+     * a letter or group that `moreThanOrEqual` value1 and `lessThanOrEqual` values
+     * @param value1
+     * @param value2
+     */
     between<N1 extends number, N2 extends number>(
         value1: N1,
         value2: N2,
@@ -190,7 +213,40 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
-    includes(): any {}
+    includes<P extends string>(
+        direction: 'LEFT',
+        value: P,
+    ): RegExpPatternBuilder<Lookbehind<Pattern, P>, Push<T, { lookbehind: P }>, NToNumber<Add<Depth, 1>>>;
+    includes<P extends string>(
+        direction: 'LEFT',
+        value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
+    ): RegExpPatternBuilder<Lookbehind<Pattern, P>, Push<T, { lookbehind: P }>, NToNumber<Add<Depth, 1>>>;
+    includes<P extends string>(
+        direction: 'RIGHT',
+        value: P,
+    ): RegExpPatternBuilder<Lookahead<Pattern, P>, Push<T, { lookahead: P }>, NToNumber<Add<Depth, 1>>>;
+    includes<P extends string>(
+        direction: 'RIGHT',
+        value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
+    ): RegExpPatternBuilder<Lookahead<Pattern, P>, Push<T, { lookahead: P }>, NToNumber<Add<Depth, 1>>>;
+    includes<P extends string>(
+        direction: 'LEFT' | 'RIGHT',
+        value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P),
+    ):
+        | RegExpPatternBuilder<Lookahead<Pattern, P>, Push<T, { lookahead: P }>, NToNumber<Add<Depth, 1>>>
+        | RegExpPatternBuilder<Lookbehind<Pattern, P>, Push<T, { lookbehind: P }>, NToNumber<Add<Depth, 1>>> {
+        const operand = typeof value === 'string' ? value : this.getValue(value);
+        if (direction === 'LEFT') {
+            const status = this.option('lookbehind', operand);
+            const expression: Lookbehind<Pattern, P> = `(?<=${operand})${this.expression}`;
+            return new RegExpPatternBuilder(expression, status);
+        } else {
+            const status = this.option('lookahead', operand);
+            const expression: Lookahead<Pattern, P> = `${this.expression}(?=${operand})`;
+            return new RegExpPatternBuilder(expression, status);
+        }
+    }
+
     join(): any {}
 
     optional<P extends string>(
