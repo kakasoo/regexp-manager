@@ -1,7 +1,7 @@
 import { RegExpPatternBuilder } from '../../new-feature';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
-import typia from 'typia';
+import typia, { assertEquals } from 'typia';
 
 describe('new-feature', () => {
     describe('node-version 20.1.0 check', () => {
@@ -123,6 +123,14 @@ describe('check "lessThan" method work correctly', () => {
     it('lessThan', () => {
         const tenOfA = new RegExpPatternBuilder('a').lessThanOrEqual(10);
         assert.deepStrictEqual(tenOfA.expression, 'a{1,10}');
+    });
+});
+
+describe('equals', () => {
+    it('is same regexp pettern', () => {
+        const comparable = new RegExpPatternBuilder('te').and('st');
+        const result = new RegExpPatternBuilder('test').equals(comparable);
+        assert.deepStrictEqual(result, true);
     });
 });
 

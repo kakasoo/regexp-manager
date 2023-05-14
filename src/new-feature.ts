@@ -9,7 +9,6 @@ type Length<T extends any[]> = T['length'];
 type Push<T extends any[], V> = [...T, V];
 type NTuple<N extends number, T extends any[] = []> = T['length'] extends N ? T : NTuple<N, Push<T, any>>;
 
-// type Add<N1 extends number, N2 extends number> = Length<[...NTuple<N1>, ...NTuple<N2>]>;
 type Add<N1 extends number, N2 extends number> = [...NTuple<N1>, ...NTuple<N2>] extends [...infer U]
     ? Length<U>
     : never;
@@ -25,6 +24,8 @@ type Join<T extends string[], U extends string | number> = T extends [infer F, .
         ? F
         : `${ToString<F>}${U}${Join<ToStringTuple<Rest>, U>}`
     : '';
+
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <P>() => P extends Y ? 1 : 2 ? true : false;
 
 /**
  * regexp types
@@ -122,7 +123,9 @@ export class RegExpPatternBuilder<
      *
      * @returns boolean
      */
-    equals() {}
+    equals<P extends string>(comparable: RegExpPatternBuilder<P, any, any>): boolean {
+        return this.expression.toString() === comparable.expression.toString();
+    }
 
     getRegExp(): RegExp {
         return RegExp(this.expression);
