@@ -1,4 +1,4 @@
-import { RegExpPatternBuilder } from '../regexpPatternBuilder';
+import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import typia, { assertEquals } from 'typia';
@@ -90,23 +90,23 @@ describe('check "and" method work correctly.', () => {
 
 describe('check "capturing" method work correctly.', () => {
     it('When capturing is used, the existing results are enclosed in brackets.', () => {
-        const leftAndRight = new RegExpPatternBuilder().capturing(() => {
+        const leftAndRight = new RegExpPatternBuilder('').capturing(() => {
             return new RegExpPatternBuilder('left').and('right');
         });
         assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
     });
 
     it('When capturing is used, the existing results are enclosed in brackets.', () => {
-        const leftAndRight = new RegExpPatternBuilder().capturing(() => {
+        const leftAndRight = new RegExpPatternBuilder('').capturing(() => {
             return new RegExpPatternBuilder('left').and('right').expression;
         });
         assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
     });
 
     it('capturing A or capturing B', () => {
-        const capturingAOrB = new RegExpPatternBuilder()
+        const capturingAOrB = new RegExpPatternBuilder('')
             .capturing('A')
-            .or(() => new RegExpPatternBuilder().capturing('B'));
+            .or(() => new RegExpPatternBuilder('').capturing('B'));
 
         assert.deepStrictEqual(capturingAOrB.expression, '(A)|(B)');
     });

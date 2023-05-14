@@ -1,6 +1,6 @@
 {
     "name": "regexp-manager",
-    "version": "0.12.0",
+    "version": "0.13.0",
     "description": "regexp builder for node.js developer",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -10,7 +10,7 @@
     "scripts": {
         "prebuild": "rimraf dist && npm install",
         "build": "tsc",
-        "test": "node --watch --require ts-node/register --test src/test/new-feature/*.spec.ts",
+        "test": "node --watch --require ts-node/register --test src/test/*.spec.ts",
         "test:cov": "jest --coverage"
     },
     "repository": {

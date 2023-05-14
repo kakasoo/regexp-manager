@@ -19,7 +19,7 @@ const leftAndRight = new RegExpPatternBuilder('left').and('right').expression; /
 
 // capturing method
 // below return '(A)'
-const capturingA = new RegExpPatternBuilder().capturing('A').expression;
+const capturingA = new RegExpPatternBuilder('').capturing('A').expression;
 
 // lessThan method
 // below return 'a{1,9}'
