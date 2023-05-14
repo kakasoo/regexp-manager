@@ -1,3 +1,2 @@
-export * from './regexp-builder';
-export * from './regexp-constant';
-export * from './new-feature';
+export * from './regexp-onstant';
+export * from './regexp-pattern-builder';

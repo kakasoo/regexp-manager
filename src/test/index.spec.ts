@@ -1,4 +1,4 @@
-import { RegExpPatternBuilder } from '../../new-feature';
+import { RegExpPatternBuilder } from '../regexpPatternBuilder';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import typia, { assertEquals } from 'typia';
