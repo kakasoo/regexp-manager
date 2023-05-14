@@ -148,6 +148,20 @@ describe('check includes("right", P)', () => {
     });
 });
 
+describe('check excludes("left", P)', () => {
+    it('negative lookbehind', () => {
+        const AafterB = new RegExpPatternBuilder('b').excludes('LEFT', 'a');
+        assert.deepStrictEqual(AafterB.expression, '(?<!a)b');
+    });
+});
+
+describe('check exclude("right", P)', () => {
+    it('lookahead', () => {
+        const AafterB = new RegExpPatternBuilder('b').excludes('RIGHT', 'a');
+        assert.deepStrictEqual(AafterB.expression, 'b(?!a)');
+    });
+});
+
 describe('test combining methods', () => {
     it('or, and', async () => {
         const colors = new RegExpPatternBuilder('red').and('orange').or('blue');

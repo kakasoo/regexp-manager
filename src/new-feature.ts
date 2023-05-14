@@ -247,6 +247,56 @@ export class RegExpPatternBuilder<
         }
     }
 
+    excludes<P extends string>(
+        direction: 'LEFT',
+        value: P,
+    ): RegExpPatternBuilder<
+        NegativeLookbehind<Pattern, P>,
+        Push<T, { negativeLookbehind: P }>,
+        NToNumber<Add<Depth, 1>>
+    >;
+    excludes<P extends string>(
+        direction: 'LEFT',
+        value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
+    ): RegExpPatternBuilder<
+        NegativeLookbehind<Pattern, P>,
+        Push<T, { negativeLookbehind: P }>,
+        NToNumber<Add<Depth, 1>>
+    >;
+    excludes<P extends string>(
+        direction: 'RIGHT',
+        value: P,
+    ): RegExpPatternBuilder<NegativeLookahead<Pattern, P>, Push<T, { negativeLookahead: P }>, NToNumber<Add<Depth, 1>>>;
+    excludes<P extends string>(
+        direction: 'RIGHT',
+        value: () => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
+    ): RegExpPatternBuilder<NegativeLookahead<Pattern, P>, Push<T, { negativeLookahead: P }>, NToNumber<Add<Depth, 1>>>;
+    excludes<P extends string>(
+        direction: 'LEFT' | 'RIGHT',
+        value: P | (() => RegExpPatternBuilder<P, Record<string, string>[], number> | P),
+    ):
+        | RegExpPatternBuilder<
+              NegativeLookahead<Pattern, P>,
+              Push<T, { negativeLookahead: P }>,
+              NToNumber<Add<Depth, 1>>
+          >
+        | RegExpPatternBuilder<
+              NegativeLookbehind<Pattern, P>,
+              Push<T, { negativeLookbehind: P }>,
+              NToNumber<Add<Depth, 1>>
+          > {
+        const operand = typeof value === 'string' ? value : this.getValue(value);
+        if (direction === 'LEFT') {
+            const status = this.option('negativeLookbehind', operand);
+            const expression: NegativeLookbehind<Pattern, P> = `(?<!${operand})${this.expression}`;
+            return new RegExpPatternBuilder(expression, status);
+        } else {
+            const status = this.option('negativeLookahead', operand);
+            const expression: NegativeLookahead<Pattern, P> = `${this.expression}(?!${operand})`;
+            return new RegExpPatternBuilder(expression, status);
+        }
+    }
+
     join(): any {}
 
     optional<P extends string>(
