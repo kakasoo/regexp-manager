@@ -9,48 +9,48 @@ This library creates regular expressions in a form similar to query builders. Th
 # Methods currently implemented
 
 ```typescript
-// or method
-// below return 'left|right'
+// `or` method
+// Below return 'left|right'. And it's also inferred from the type.
 const leftOrRight = new RegExpPatternBuilder('left').or('right').expression;
 
-// and method
-// below return 'leftright'
-const leftAndRight = new RegExpPatternBuilder('left').and('right').expression; // leftright
+// `and` method
+// Below return 'leftright'. And it's also inferred from the type.
+const leftAndRight = new RegExpPatternBuilder('left').and('right').expression;
 
-// capturing method
-// below return '(A)'
+// `capturing` method
+// Below return '(A)'. And it's also inferred from the type.
 const capturingA = new RegExpPatternBuilder('').capturing('A').expression;
 
-// lessThan method
-// below return 'a{1,9}'
+// `lessThan` method
+// Below return 'a{1,9}'. And it's also inferred from the type.
 const lessThanTen = new RegExpPatternBuilder('a').lessThan(10).expression;
 
-// lessThanOrEqual method
-// below return 'a{1,10}'
+// `lessThanOrEqual` method
+// Below return 'a{1,10}'. And it's also inferred from the type.
 const lessThanOrEqualTen = new RegExpPatternBuilder('a').lessThanOrEqual(10).expression;
 
-// moreThan method
-// below return 'a{4,}'
+// `moreThan` method
+// Below return 'a{4,}'. And it's also inferred from the type.
 const moreThanThree = new RegExpPatternBuilder('a').moreThan(3).expression;
 
-// moreThanOrEqual method
-// below return 'a{3,}'
+// `moreThanOrEqual` method
+// Below return 'a{3,}'. And it's also inferred from the type.
 const moreThanOrEqualThree = new RegExpPatternBuilder('a').moreThanOrEqual(3).expression;
 
-// include("left", P) method means lookbehind
-// below return '(?<=a)b'
+// `include`("left", P) method means lookbehind
+// Below return '(?<=a)b'. And it's also inferred from the type.
 const lookhehind = new RegExpPatternBuilder('b').includes('LEFT', 'a');
 
-// include("right", P) method means lookahead
-// below return 'b(?=a)'
+// `include`("right", P) method means lookahead
+// Below return 'b(?=a)'. And it's also inferred from the type.
 const lookahead = new RegExpPatternBuilder('b').includes('RIGHT', 'a');
 
-// exclude("left", P) method means negative lookbehind
-// below return '(?<!a)b'
+// `exclude`("left", P) method means negative lookbehind
+// Below return '(?<!a)b'. And it's also inferred from the type.
 const nagativeLookbhind = new RegExpPatternBuilder('b').excludes('LEFT', 'a');
 
-// exclude("left", P) method means negative lookbehind
-// below return 'b(?!a)'
+// `exclude`("left", P) method means negative lookbehind
+// Below return 'b(?!a)'. And it's also inferred from the type.
 const negativeLookahead = new RegExpPatternBuilder('b').excludes('RIGHT', 'a');
 ```
 
