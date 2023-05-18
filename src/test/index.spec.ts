@@ -185,7 +185,12 @@ describe('test combining methods', () => {
     it('phone-number', () => {
         const koreanPhoneNumber = new RegExpPatternBuilder('')
             .capturing(() => new RegExpPatternBuilder('010').or('011'))
+            .and('-')
             .and(() => new RegExpPatternBuilder('[0-9]').between(3, 4))
-            .and(() => new RegExpPatternBuilder('[0-9]').between(4, 4)).expression;
+            .and('-')
+            .and(() => new RegExpPatternBuilder('[0-9]').between(4, 4))
+            .getRegExp();
+
+        assert.deepStrictEqual(koreanPhoneNumber.test('010-0000-0000'), true);
     });
 });
