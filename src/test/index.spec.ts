@@ -90,23 +90,23 @@ describe('check "and" method work correctly.', () => {
 
 describe('check "capturing" method work correctly.', () => {
     it('When capturing is used, the existing results are enclosed in brackets.', () => {
-        const leftAndRight = new RegExpPatternBuilder('').capturing(() => {
+        const leftAndRight = new RegExpPatternBuilder().capturing(() => {
             return new RegExpPatternBuilder('left').and('right');
         });
         assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
     });
 
     it('When capturing is used, the existing results are enclosed in brackets.', () => {
-        const leftAndRight = new RegExpPatternBuilder('').capturing(() => {
+        const leftAndRight = new RegExpPatternBuilder().capturing(() => {
             return new RegExpPatternBuilder('left').and('right').expression;
         });
         assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
     });
 
     it('capturing A or capturing B', () => {
-        const capturingAOrB = new RegExpPatternBuilder('')
+        const capturingAOrB = new RegExpPatternBuilder()
             .capturing('A')
-            .or(() => new RegExpPatternBuilder('').capturing('B'));
+            .or(() => new RegExpPatternBuilder().capturing('B'));
 
         assert.deepStrictEqual(capturingAOrB.expression, '(A)|(B)');
     });
@@ -183,7 +183,7 @@ describe('test combining methods', () => {
     });
 
     it('phone-number', () => {
-        const koreanPhoneNumber = new RegExpPatternBuilder('')
+        const koreanPhoneNumber = new RegExpPatternBuilder()
             .capturing(() => new RegExpPatternBuilder('010').or('011'))
             .and('-')
             .and(() => new RegExpPatternBuilder('[0-9]').between(3, 4))

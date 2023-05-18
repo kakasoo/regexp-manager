@@ -102,17 +102,15 @@ type RegExpTypeName =
     | 'negativeLookahead'
     | 'negativeLookbehind';
 
-type EmptyString = '';
-
 export class RegExpPatternBuilder<
-    Pattern extends string,
+    Pattern extends string = '',
     T extends Partial<Record<RegExpTypeName, string>>[] = [{ init: Pattern }],
     Depth extends number = 0,
 > {
     private currentExpression: Pattern;
     private readonly status: T;
 
-    constructor(currentExpression: Pattern, status: T = [{ init: currentExpression }] as any) {
+    constructor(currentExpression: Pattern = '' as Pattern, status: T = [{ init: currentExpression }] as any) {
         this.currentExpression = currentExpression;
         this.status = status;
     }
