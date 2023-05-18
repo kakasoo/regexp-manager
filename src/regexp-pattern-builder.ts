@@ -1,3 +1,5 @@
+import typia from 'typia';
+
 /**
  * util types
  */
@@ -93,6 +95,25 @@ namespace RegExpFlag {
 type MethodNames<T> = {
     [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
 }[keyof T];
+
+type ReplaceAll<S extends string, From extends string, To extends string> = From extends ''
+    ? S
+    : S extends From
+    ? To
+    : S extends `${From}${infer Rest}`
+    ? `${To}${ReplaceAll<Rest, From, To>}`
+    : S extends `${infer First}${From}${infer Last}`
+    ? `${First}${To}${ReplaceAll<Last, From, To>}`
+    : S extends `${infer First}${From}`
+    ? `${First}${To}`
+    : S;
+
+type Includes<T extends string, P extends string> = T extends `${string}${P}${string}` ? true : false;
+
+/**
+ * It refers to a substitute string, and if there is an un substitute key-value pair, it is inferred as `never`.
+ */
+type Replaced<T extends string> = Includes<T, `\${${string}}`> extends true ? never : T;
 
 type RegExpTypeName =
     | Exclude<MethodNames<RegExpPatternBuilder<any>>, 'expression' | 'getRegExp'>

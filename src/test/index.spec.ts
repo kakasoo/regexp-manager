@@ -176,6 +176,14 @@ describe('check exclude("right", P)', () => {
     });
 });
 
+describe('check replace work correctly', () => {
+    it('replace', async () => {
+        const replaced = new RegExpPatternBuilder('${a}${b}').replace({ a: 'test', b: 'kakasoo' } as const).expression;
+
+        assert.deepStrictEqual(replaced, 'testkakasoo');
+    });
+});
+
 describe('test combining methods', () => {
     it('or, and', async () => {
         const colors = new RegExpPatternBuilder('red').and('orange').or('blue');
