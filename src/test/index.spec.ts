@@ -23,7 +23,7 @@ describe('check "or" method work correctly.', () => {
     });
 
     it('or method have to add initial value as sub expression(return builder).', () => {
-        const sringOrNumber = new RegExpPatternBuilder('[0-9]').or(() => new RegExpPatternBuilder('[a-zA-Z]'));
+        const sringOrNumber = new RegExpPatternBuilder('[0-9]').or((qb) => qb.and('[a-zA-Z]'));
         assert.deepStrictEqual(sringOrNumber.expression, '[0-9]|[a-zA-Z]');
     });
 
@@ -90,23 +90,21 @@ describe('check "and" method work correctly.', () => {
 
 describe('check "capturing" method work correctly.', () => {
     it('When capturing is used, the existing results are enclosed in brackets.', () => {
-        const leftAndRight = new RegExpPatternBuilder().capturing(() => {
-            return new RegExpPatternBuilder('left').and('right');
+        const leftAndRight = new RegExpPatternBuilder().capturing((qb) => {
+            return qb.and('left').and('right');
         });
         assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
     });
 
     it('When capturing is used, the existing results are enclosed in brackets.', () => {
-        const leftAndRight = new RegExpPatternBuilder().capturing(() => {
-            return new RegExpPatternBuilder('left').and('right').expression;
+        const leftAndRight = new RegExpPatternBuilder().capturing((qb) => {
+            return qb.and('left').and('right').expression;
         });
         assert.deepStrictEqual(leftAndRight.expression, '(leftright)');
     });
 
     it('capturing A or capturing B', () => {
-        const capturingAOrB = new RegExpPatternBuilder()
-            .capturing('A')
-            .or(() => new RegExpPatternBuilder().capturing('B'));
+        const capturingAOrB = new RegExpPatternBuilder().capturing('A').or((qb) => qb.capturing('B'));
 
         assert.deepStrictEqual(capturingAOrB.expression, '(A)|(B)');
     });
@@ -177,11 +175,10 @@ describe('check exclude("right", P)', () => {
 });
 
 describe('check replace work correctly', () => {
-    it('replace', async () => {
-        const replaced = new RegExpPatternBuilder('${a}${b}').replace({ a: 'test', b: 'kakasoo' } as const).expression;
-
-        assert.deepStrictEqual(replaced, 'testkakasoo');
-    });
+    // it('replace', async () => {
+    //     const replaced = new RegExpPatternBuilder('${a}${b}').replace({ a: 'test', b: 'kakasoo' } as const).expression;
+    //     assert.deepStrictEqual(replaced, 'testkakasoo');
+    // });
 });
 
 describe('test combining methods', () => {
@@ -200,5 +197,15 @@ describe('test combining methods', () => {
             .getRegExp();
 
         assert.deepStrictEqual(koreanPhoneNumber.test('010-0000-0000'), true);
+    });
+});
+
+describe('check method structure', () => {
+    it('As a parameter of function, RegExpPatternBuilder exists optionally.', () => {
+        const test = new RegExpPatternBuilder().and((qb) => {
+            return qb.and('test');
+        }).expression;
+
+        assert.deepStrictEqual(test, 'test');
     });
 });

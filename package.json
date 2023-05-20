@@ -1,6 +1,6 @@
 {
     "name": "regexp-manager",
-    "version": "0.14.0",
+    "version": "0.15.0",
     "description": "regexp builder for node.js developer",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
