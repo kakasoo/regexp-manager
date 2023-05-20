@@ -1,5 +1,8 @@
 # regexp-manager
 
+https://github.com/kakasoo/regexp-manager/assets/55487286/04bde872-e6e9-46c6-8c5f-174be811d871
+
+
 This library creates regular expressions in a form similar to query builders. The benefits of this library are three.
 
 1. To intuitively use various methods of regular expressions that developers do not usually deal with
