@@ -93,11 +93,11 @@ export type Slice<T extends any[], A extends any, B extends any, CONDITION exten
     ...infer Rest,
 ]
     ? CONDITION extends true
-        ? X extends B
-            ? [X, ...Slice<Rest, A, B, false>]
-            : [X, ...Slice<Rest, A, B, true>]
-        : X extends A
-        ? [X, ...Slice<Rest, A, B, true>]
+        ? X extends B // If you find something that matches B,
+            ? [X, ...Slice<Rest, A, B, false>] // End the option to include unconditionally if you find a match for B
+            : [X, ...Slice<Rest, A, B, true>] // include next type unconditionally
+        : X extends A // If you find something that matches A,
+        ? [X, ...Slice<Rest, A, B, true>] // include A & CONDTION type is true
         : []
     : CONDITION extends true // If CONDITION is still true while circulating all arrays, then the last point was not found, so never
     ? never
