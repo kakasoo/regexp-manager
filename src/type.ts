@@ -32,9 +32,9 @@ export type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <P>() => P exte
 /**
  * regexp types
  */
-export type OR<Expression extends string, P extends string> = `${Expression}|${P}`;
+export type Or<Expression extends string, P extends string> = `${Expression}|${P}`;
 // export type AND<Expression extends string, P extends string> = Join<[Expression, P], ''>;
-export type AND<Expression extends string, P extends string> = `${Expression}${P}`;
+export type And<Expression extends string, P extends string> = `${Expression}${P}`;
 export type LessThan<Expression extends string, Count extends number> = `${Expression}{1,${Sub<Count, 1>}}`;
 export type LessThanOrEqual<Expression extends string, Count extends number> = `${Expression}{1,${Count}}`;
 export type MoreThan<Expression extends string, Count extends number> = `${Expression}{${Add<Count, 1>},}`;

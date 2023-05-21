@@ -1,5 +1,5 @@
 import type {
-    AND,
+    And,
     Add,
     Between,
     CapturingGroup,
@@ -12,7 +12,7 @@ import type {
     NToNumber,
     NegativeLookahead,
     NegativeLookbehind,
-    OR,
+    Or,
     Optional,
     Push,
     RegExpTypeName,
@@ -256,8 +256,8 @@ export class RegExpPatternBuilder<
 
     or<P extends string>(
         value: (qb: RegExpPatternBuilder<'', [], 0>) => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
-    ): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
-    or<P extends string>(value: P): RegExpPatternBuilder<OR<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
+    ): RegExpPatternBuilder<Or<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
+    or<P extends string>(value: P): RegExpPatternBuilder<Or<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
     or<P extends string>(
         value:
             | P
@@ -271,10 +271,10 @@ export class RegExpPatternBuilder<
 
     and<P extends string>(
         value: (qb: RegExpPatternBuilder<'', [], 0>) => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
-    ): RegExpPatternBuilder<AND<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
+    ): RegExpPatternBuilder<And<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
     and<P extends string>(
         value: P,
-    ): RegExpPatternBuilder<AND<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
+    ): RegExpPatternBuilder<And<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
     and<P extends string>(
         value:
             | P
