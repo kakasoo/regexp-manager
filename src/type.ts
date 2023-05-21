@@ -142,21 +142,24 @@ export type IsLowerCase<T extends string> = Lowercase<T> extends T ? true : fals
 
 export type UpperToLower<To extends string> = [...UppercaseAlphabetTuple, ...Slice<LowercaseAlphabetTuple, 'a', To>];
 
-export type CaracterSet<T extends string> = `[${T}]`;
+export type CaracterSet<T extends string> = T extends '' ? never : `[${T}]`;
+
+// export type IsCaracterSet<T extends string> = T extends CaracterSet<infer R> ? R : false;
+
 export type Range<T extends string, P extends string> = `${T}-${P}`;
-export type TypedRegExp<Pattern extends string> = Pattern extends `${infer Prefix}${infer R1}${infer Postfix}`
-    ? R1 extends CaracterSet<infer R2>
+export type TypedRegExp<Pattern extends string> = Pattern extends `${infer Prefix}[${infer R1}]${infer Postfix}`
+    ? `[${R1}]` extends CaracterSet<infer R2>
         ? R2 extends Range<infer R3, infer R4>
             ? IsUpperCase<R3> extends true
                 ? IsUpperCase<R4> extends true
-                    ? never // range reversed
-                    : `${Prefix}${string}${Postfix}`
-                : `${Prefix}${string}${Postfix}`
+                    ? `${Prefix}${Slice<UppercaseAlphabetTuple, R3, R4>[number]}${Postfix}` // for example 'A-Z'
+                    : `${Prefix}${UpperToLower<R4>[number]}${Postfix}` // for example 'A-z'
+                : IsUpperCase<R4> extends true
+                ? never //  range reversed case, for example 'a-Z'. So, it will be never type
+                : `${Prefix}${Slice<LowercaseAlphabetTuple, R3, R4>[number]}${Postfix}` // for example 'a-Z'
             : 'b'
-        : 'c'
+        : R1
     : 'd';
-
-type answer = TypedRegExp<'a[a-z]b'>;
 
 export namespace RegExpFlag {
     export type HasIndices = 'd';
