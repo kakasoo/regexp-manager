@@ -143,24 +143,22 @@ export type IsLowerCase<T extends string> = Lowercase<T> extends T ? true : fals
 export type UpperToLower<To extends string> = [...UppercaseAlphabetTuple, ...Slice<LowercaseAlphabetTuple, 'a', To>];
 
 export type CaracterSet<T extends string> = T extends '' ? never : `[${T}]`;
+export type Range<T extends string, P extends string> = `${T}-${P}`;
 
-export type IsCaracterSet<R1 extends string, R2 extends string, R3 extends string> = `[${R2}]` extends CaracterSet<
-    infer R4
->
+export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<infer R4>
     ? R4 extends Range<infer R5, infer R6>
         ? IsUpperCase<R5> extends true
             ? IsUpperCase<R6> extends true
-                ? `${R1}${Slice<UppercaseAlphabetTuple, R5, R6>[number]}${R3}` // for example 'A-Z'
-                : `${R1}${UpperToLower<R6>[number]}${R3}` // for example 'A-z'
+                ? `${Slice<UppercaseAlphabetTuple, R5, R6>[number]}` // for example 'A-Z'
+                : `${UpperToLower<R6>[number]}` // for example 'A-z'
             : IsUpperCase<R6> extends true
             ? never //  range reversed case, for example 'a-Z'. So, it will be never type
-            : `${R1}${Slice<LowercaseAlphabetTuple, R5, R6>[number]}${R3}` // for example 'a-Z'
-        : 'b'
+            : `${Slice<LowercaseAlphabetTuple, R5, R6>[number]}` // for example 'a-Z'
+        : 'Non-Alphabet' // maybe it will be other languages or number (or never type)
     : 'Non-Range';
 
-export type Range<T extends string, P extends string> = `${T}-${P}`;
 export type TypedRegExp<Pattern extends string> = Pattern extends `${infer R1}[${infer R2}]${infer R3}`
-    ? IsCaracterSet<R1, R2, R3>
+    ? `${R1}${IsCaracterSet<R2>}${R3}`
     : 'Non-caracterSet';
 
 // export type a = TypedRegExp<'[a-z][b-z]'>
