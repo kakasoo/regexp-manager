@@ -99,6 +99,8 @@ export type Slice<T extends any[], A extends any, B extends any, CONDITION exten
         : X extends A
         ? [X, ...Slice<Rest, A, B, true>]
         : []
+    : CONDITION extends true // If CONDITION is still true while circulating all arrays, then the last point was not found, so never
+    ? never
     : [];
 
 export type CaracterSet<T extends string> = `[${T}]`;

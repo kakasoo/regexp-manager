@@ -1,21 +1,39 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "declaration": true,
-        "removeComments": true,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "esModuleInterop": true,
-        "target": "es6",
-        "sourceMap": false,
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "baseUrl": "./",
-        "noLib": false,
-        "lib": ["ES2022"],
-        "typeRoots": ["src/types", "node_modules/@types"],
-        "strict": true
-    },
-    "include": ["src/**/*.ts", "src/types/index.d.ts"],
-    "exclude": ["node_modules", "src/test", "src/test/example"]
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "target": "es6",
+    "sourceMap": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "noLib": false,
+    "lib": [
+      "ES2022"
+    ],
+    "typeRoots": [
+      "src/types",
+      "node_modules/@types"
+    ],
+    "strict": true,
+    "plugins": [
+      {
+        "transform": "typia/lib/transform"
+      }
+    ],
+    "strictNullChecks": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/types/index.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/test",
+    "src/test/example"
+  ]
 }

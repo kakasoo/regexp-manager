@@ -1,6 +1,8 @@
 import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
+import typia from 'typia';
+import { Slice } from '../type';
 
 describe('new-feature', () => {
     describe('node-version 20.1.0 check', () => {
@@ -206,5 +208,26 @@ describe('check method structure', () => {
         }).expression;
 
         assert.deepStrictEqual(test, 'test');
+    });
+});
+
+describe('type test', () => {
+    describe('Slice type', () => {
+        it('number tuple', async () => {
+            const tuple = typia.random<Slice<[1, 2, 3, 4, 5, 6, 7], 1, 7>>();
+            assert.deepStrictEqual(tuple, [1, 2, 3, 4, 5, 6, 7]);
+        });
+
+        it('string tuple', async () => {
+            const tuple = typia.random<Slice<['a', 'b', 'c', 'd', 'e'], 'a', 'b'>>();
+
+            assert.deepStrictEqual(tuple, ['a', 'b']);
+        });
+
+        it('If there is no matching type in B', async () => {
+            const tuple = typia.random<Slice<['a', 'b', 'c', 'd', 'e'], 'a', 'z'>>();
+
+            assert.deepStrictEqual(tuple, undefined);
+        });
     });
 });
