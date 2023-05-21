@@ -157,11 +157,9 @@ export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<inf
         : 'Non-Alphabet' // maybe it will be other languages or number (or never type)
     : 'Non-Range';
 
-export type TypedRegExp<Pattern extends string> = Pattern extends `${infer R1}[${infer R2}]${infer R3}`
-    ? `${R1}${IsCaracterSet<R2>}${R3}`
-    : 'Non-caracterSet';
-
-// export type a = TypedRegExp<'[a-z][b-z]'>
+export type TypedRegExp<Pattern extends string> = Pattern extends `[${infer R1}]${infer R2}`
+    ? `${IsCaracterSet<R1>}${TypedRegExp<R2>}`
+    : '';
 
 export namespace RegExpFlag {
     export type HasIndices = 'd';

@@ -267,5 +267,15 @@ describe('type test', () => {
                 assert.deepStrictEqual(uppercase, uppercase.toUpperCase());
             }
         });
+
+        it("[A-z][A-z]'s length is 2", async () => {
+            type TestType = TypedRegExp<'[A-Z][A-Z]'>;
+            const lengthIsTwoFn = typia.createRandom<TestType>();
+
+            for (let i = 1; i <= 1000; i++) {
+                const uppercase = lengthIsTwoFn();
+                assert.deepStrictEqual(uppercase.length, 2);
+            }
+        });
     });
 });
