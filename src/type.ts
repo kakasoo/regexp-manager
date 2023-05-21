@@ -144,22 +144,26 @@ export type UpperToLower<To extends string> = [...UppercaseAlphabetTuple, ...Sli
 
 export type CaracterSet<T extends string> = T extends '' ? never : `[${T}]`;
 
-// export type IsCaracterSet<T extends string> = T extends CaracterSet<infer R> ? R : false;
+export type IsCaracterSet<R1 extends string, R2 extends string, R3 extends string> = `[${R2}]` extends CaracterSet<
+    infer R4
+>
+    ? R4 extends Range<infer R5, infer R6>
+        ? IsUpperCase<R5> extends true
+            ? IsUpperCase<R6> extends true
+                ? `${R1}${Slice<UppercaseAlphabetTuple, R5, R6>[number]}${R3}` // for example 'A-Z'
+                : `${R1}${UpperToLower<R6>[number]}${R3}` // for example 'A-z'
+            : IsUpperCase<R6> extends true
+            ? never //  range reversed case, for example 'a-Z'. So, it will be never type
+            : `${R1}${Slice<LowercaseAlphabetTuple, R5, R6>[number]}${R3}` // for example 'a-Z'
+        : 'b'
+    : 'Non-Range';
 
 export type Range<T extends string, P extends string> = `${T}-${P}`;
-export type TypedRegExp<Pattern extends string> = Pattern extends `${infer Prefix}[${infer R1}]${infer Postfix}`
-    ? `[${R1}]` extends CaracterSet<infer R2>
-        ? R2 extends Range<infer R3, infer R4>
-            ? IsUpperCase<R3> extends true
-                ? IsUpperCase<R4> extends true
-                    ? `${Prefix}${Slice<UppercaseAlphabetTuple, R3, R4>[number]}${Postfix}` // for example 'A-Z'
-                    : `${Prefix}${UpperToLower<R4>[number]}${Postfix}` // for example 'A-z'
-                : IsUpperCase<R4> extends true
-                ? never //  range reversed case, for example 'a-Z'. So, it will be never type
-                : `${Prefix}${Slice<LowercaseAlphabetTuple, R3, R4>[number]}${Postfix}` // for example 'a-Z'
-            : 'b'
-        : R1
-    : 'd';
+export type TypedRegExp<Pattern extends string> = Pattern extends `${infer R1}[${infer R2}]${infer R3}`
+    ? IsCaracterSet<R1, R2, R3>
+    : 'Non-caracterSet';
+
+// export type a = TypedRegExp<'[a-z][b-z]'>
 
 export namespace RegExpFlag {
     export type HasIndices = 'd';
