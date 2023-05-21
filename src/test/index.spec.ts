@@ -1,7 +1,6 @@
 import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
-import typia, { assertEquals } from 'typia';
 
 describe('new-feature', () => {
     describe('node-version 20.1.0 check', () => {

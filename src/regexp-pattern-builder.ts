@@ -1,127 +1,23 @@
-import typia from 'typia';
-
-/**
- * util types
- */
-type Merge<F, S> = {
-    [K in keyof (F & S)]: K extends keyof S ? S[K] : K extends keyof F ? F[K] : never;
-};
-
-type Length<T extends any[]> = T['length'];
-type Push<T extends any[], V> = [...T, V];
-type NTuple<N extends number, T extends any[] = []> = T['length'] extends N ? T : NTuple<N, Push<T, any>>;
-
-type Add<N1 extends number, N2 extends number> = [...NTuple<N1>, ...NTuple<N2>] extends [...infer U]
-    ? Length<U>
-    : never;
-
-type Sub<A extends number, B extends number> = NTuple<A> extends [...infer U, ...NTuple<B>] ? Length<U> : never;
-type NToNumber<N> = N extends number ? N : never;
-
-type ToNumber<T> = T extends number ? T : never;
-type ToString<T> = T extends string ? T : T extends number ? `${T}` : never;
-type ToStringTuple<T> = T extends string[] ? T : never;
-type Join<T extends string[], U extends string | number> = T extends [infer F, ...infer Rest]
-    ? Rest extends []
-        ? F
-        : `${ToString<F>}${U}${Join<ToStringTuple<Rest>, U>}`
-    : '';
-
-type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <P>() => P extends Y ? 1 : 2 ? true : false;
-
-/**
- * regexp types
- */
-type OR<Expression extends string, P extends string> = `${Expression}|${P}`;
-// type AND<Expression extends string, P extends string> = Join<[Expression, P], ''>;
-type AND<Expression extends string, P extends string> = `${Expression}${P}`;
-type LessThan<Expression extends string, Count extends number> = `${Expression}{1,${Sub<Count, 1>}}`;
-type LessThanOrEqual<Expression extends string, Count extends number> = `${Expression}{1,${Count}}`;
-type MoreThan<Expression extends string, Count extends number> = `${Expression}{${Add<Count, 1>},}`;
-type MoreThanOrEqual<Expression extends string, Count extends number> = `${Expression}{${Count},}`;
-type Between<
-    Expression extends string,
-    Count1 extends number,
-    Count2 extends number,
-> = `${Expression}{${Count1},${Count2}}`;
-type Optional<Expression extends string> = `${Expression}?`;
-type Lookahead<Expression extends string, Condition extends string> = `${Expression}(?=${Condition})`;
-type NegativeLookahead<Expression extends string, Condition extends string> = `${Expression}(?!${Condition})`;
-type Lookbehind<Expression extends string, Condition extends string> = `(?<=${Condition})${Expression}`;
-type NegativeLookbehind<Expression extends string, Condition extends string> = `(?<!${Condition})${Expression}`;
-type CapturingGroup<Expression extends string> = `(${Expression})`;
-type KoreanAlphabet = `[\\uac00-\\ud7a3]`; // 44032-55203
-type AlphabetTuple = [
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'g',
-    'h',
-    'i',
-    'j',
-    'k',
-    'l',
-    'm',
-    'n',
-    'o',
-    'p',
-    'q',
-    'r',
-    's',
-    't',
-    'u',
-    'v',
-    'w',
-    'x',
-    'y',
-    'z',
-];
-type LowercaseAlphabet = AlphabetTuple[number];
-type UppercaseAlphabet = Uppercase<AlphabetTuple[number]>;
-type Hexadecimal = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
-
-namespace RegExpFlag {
-    type HasIndices = 'd';
-    type Global = 'g';
-    type IgnoreCase = 'i';
-    type Multiline = 'm';
-    type DotAll = 's';
-    type Unicode = 'u';
-    type Sticky = 'y';
-}
-
-type MethodNames<T> = {
-    [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
-}[keyof T];
-
-type ReplaceAll<S extends string, From extends string, To extends string> = From extends ''
-    ? S
-    : S extends From
-    ? To
-    : S extends `${From}${infer Rest}`
-    ? `${To}${ReplaceAll<Rest, From, To>}`
-    : S extends `${infer First}${From}${infer Last}`
-    ? `${First}${To}${ReplaceAll<Last, From, To>}`
-    : S extends `${infer First}${From}`
-    ? `${First}${To}`
-    : S;
-
-type Includes<T extends string, P extends string> = T extends `${string}${P}${string}` ? true : false;
-
-/**
- * It refers to a substitute string, and if there is an un substitute key-value pair, it is inferred as `never`.
- */
-type Replaced<T extends string> = Includes<T, `\${${string}}`> extends true ? never : T;
-
-type RegExpTypeName =
-    | Exclude<MethodNames<RegExpPatternBuilder<any>>, 'expression' | 'getRegExp'>
-    | 'init'
-    | 'lookahead'
-    | 'lookbehind'
-    | 'negativeLookahead'
-    | 'negativeLookbehind';
+import type {
+    AND,
+    Add,
+    Between,
+    CapturingGroup,
+    LessThan,
+    LessThanOrEqual,
+    Lookahead,
+    Lookbehind,
+    MoreThan,
+    MoreThanOrEqual,
+    NToNumber,
+    NegativeLookahead,
+    NegativeLookbehind,
+    OR,
+    Optional,
+    Push,
+    RegExpTypeName,
+    Sub,
+} from './type';
 
 export class RegExpPatternBuilder<
     Pattern extends string = '',
