@@ -2,7 +2,7 @@ import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import typia from 'typia';
-import { Slice } from '../type';
+import { Slice, TypedRegExp } from '../type';
 
 describe('new-feature', () => {
     describe('node-version 20.1.0 check', () => {
@@ -231,6 +231,41 @@ describe('type test', () => {
         it("If `from` is same to `to`, tuple's length is one.", async () => {
             const tuple = typia.random<Slice<['a', 'b', 'c', 'd', 'e'], 'a', 'a'>>();
             assert.deepStrictEqual(tuple, ['a']);
+        });
+    });
+
+    describe('TypedRegExp', () => {
+        it('[a-z] is lowercase', async () => {
+            const createLowercaseFn = typia.createRandom<TypedRegExp<'[a-z]'>>();
+
+            for (let i = 1; i <= 1000; i++) {
+                const lowercase = createLowercaseFn();
+                /**
+                 * only lowercase
+                 */
+                assert.deepStrictEqual(lowercase, lowercase.toLocaleLowerCase());
+            }
+        });
+
+        it('[a-Z] is never case', async () => {
+            const createNeverCaseFn = typia.createRandom<TypedRegExp<'[a-Z]'>>();
+
+            for (let i = 1; i <= 1000; i++) {
+                const lowercase = createNeverCaseFn();
+                /**
+                 * only never (undefined)
+                 */
+                assert.deepStrictEqual(lowercase, undefined);
+            }
+        });
+
+        it('[A-Z] is uppercase', async () => {
+            const createUppercaseFn = typia.createRandom<TypedRegExp<'[A-Z]'>>();
+
+            for (let i = 1; i <= 1000; i++) {
+                const uppercase = createUppercaseFn();
+                assert.deepStrictEqual(uppercase, uppercase.toUpperCase());
+            }
         });
     });
 });
