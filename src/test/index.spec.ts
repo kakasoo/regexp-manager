@@ -278,6 +278,8 @@ describe('type test', () => {
             }
         });
 
-        it(`new RegExpPatternBuilder('[a-z][A-Z][a-z]')'s Prediction type check`, async () => {});
+        it(`new RegExpPatternBuilder('[a-z][A-Z][a-z]')'s Prediction type check`, async () => {
+            new RegExpPatternBuilder('[a-z][a-z][a-z]');
+        });
     });
 });

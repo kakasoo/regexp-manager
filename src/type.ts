@@ -51,7 +51,7 @@ export type Lookbehind<Expression extends string, Condition extends string> = `(
 export type NegativeLookbehind<Expression extends string, Condition extends string> = `(?<!${Condition})${Expression}`;
 export type CapturingGroup<Expression extends string> = `(${Expression})`;
 export type KoreanAlphabet = `[\\uac00-\\ud7a3]`; // 44032-55203
-export type LowercaseAlphabetTuple = [
+export type LowercaseAlphabets = [
     'a',
     'b',
     'c',
@@ -78,12 +78,13 @@ export type LowercaseAlphabetTuple = [
     'y',
     'z',
 ];
-export type UppercaseAlphabetTuple = [
+export type UppercaseAlphabets = [
     'A',
     'B',
     'C',
     'D',
     'E',
+    'F',
     'G',
     'H',
     'I',
@@ -105,9 +106,9 @@ export type UppercaseAlphabetTuple = [
     'Y',
     'Z',
 ];
-export type AlphabetTuple = [...UppercaseAlphabetTuple, ...LowercaseAlphabetTuple];
-export type LowercaseAlphabet = LowercaseAlphabetTuple[number];
-export type UppercaseAlphabet = UppercaseAlphabetTuple[number];
+export type AlphabetTuple = [...UppercaseAlphabets, ...LowercaseAlphabets];
+export type LowercaseAlphabet = LowercaseAlphabets[number];
+export type UppercaseAlphabet = UppercaseAlphabets[number];
 export type Hexadecimal = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
 
 /**
@@ -140,26 +141,29 @@ export type IsAlphabet<T extends string> = Uppercase<T> extends Lowercase<T>
 export type IsUpperCase<T extends string> = Uppercase<T> extends T ? true : false;
 export type IsLowerCase<T extends string> = Lowercase<T> extends T ? true : false;
 
-export type UpperToLower<To extends string> = [...UppercaseAlphabetTuple, ...Slice<LowercaseAlphabetTuple, 'a', To>];
-
 export type CaracterSet<T extends string> = T extends '' ? never : `[${T}]`;
 export type Range<T extends string, P extends string> = `${T}-${P}`;
 
-export type Take<T extends any[], P extends number> = Sub<Length<T>, P> extends never
-    ? T
-    : T extends [...infer Rest, ...NTuple<Sub<Length<T>, P>>]
-    ? Rest
+export type Take<T extends any[], P extends number = 5, R extends any[] = []> = Length<R> extends P
+    ? R
+    : T extends [infer F, ...infer Rest]
+    ? Take<Rest, P, Push<R, F>>
     : never;
 
+export type UpperToLower<To extends string> = Take<[...UppercaseAlphabets, ...Slice<LowercaseAlphabets, 'a', To>]>;
+export type UpperToUpper<R1 extends string, R2 extends string> = Take<Slice<UppercaseAlphabets, R1, R2>>;
+export type LowerToUpper<R1 extends string, R2 extends string> = Take<Slice<LowercaseAlphabets, R1, R2>>;
+
+export type TupleToUnion<T extends NTuple<number>> = T[number];
 export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<infer R4>
     ? R4 extends Range<infer R5, infer R6>
         ? IsUpperCase<R5> extends true
             ? IsUpperCase<R6> extends true
-                ? `${Slice<UppercaseAlphabetTuple, R5, R6>[number]}` // for example 'A-Z'
+                ? `${UpperToUpper<R5, R6>[number]}` // for example 'A-Z' // `${UpperToUpper<R5, R6>[number]}`
                 : `${UpperToLower<R6>[number]}` // for example 'A-z'
             : IsUpperCase<R6> extends true
             ? never //  range reversed case, for example 'a-Z'. So, it will be never type
-            : `${Slice<LowercaseAlphabetTuple, R5, R6>[number]}` // for example 'a-Z'
+            : `${LowerToUpper<R5, R6>[number]}` // for example 'a-Z'
         : 'Non-Alphabet' // maybe it will be other languages or number (or never type)
     : 'Non-Range';
 
