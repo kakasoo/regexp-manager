@@ -82,7 +82,36 @@ export type LowercaseAlphabet = AlphabetTuple[number];
 export type UppercaseAlphabet = Uppercase<AlphabetTuple[number]>;
 export type Hexadecimal = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
 
-namespace RegExpFlag {
+/**
+ * Returns matching A to matching B in tuple form.
+ * If there are no elements that match A or B, then never type.
+ */
+// export type Slice<T extends string[], A extends string, B extends string> =
+
+export type Slice<T extends any[], A extends any, B extends any, CONDITION extends boolean = false> = T extends [
+    infer X,
+    ...infer Rest,
+]
+    ? CONDITION extends true
+        ? X extends B
+            ? [X, ...Slice<Rest, A, B, false>]
+            : [X, ...Slice<Rest, A, B, true>]
+        : X extends A
+        ? [X, ...Slice<Rest, A, B, true>]
+        : []
+    : [];
+
+export type CaracterSet<T extends string> = `[${T}]`;
+export type Range<T extends string, P extends string> = `${T}-${P}`;
+export type TypedRegExp<Pattern extends string> = Pattern extends `${string}${infer R1}${string}`
+    ? R1 extends CaracterSet<infer R2>
+        ? R2 extends Range<infer R3, infer R4>
+            ? 'a'
+            : 'b'
+        : 'c'
+    : 'd';
+
+export namespace RegExpFlag {
     export type HasIndices = 'd';
     export type Global = 'g';
     export type IgnoreCase = 'i';
