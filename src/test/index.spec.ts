@@ -220,14 +220,17 @@ describe('type test', () => {
 
         it('string tuple', async () => {
             const tuple = typia.random<Slice<['a', 'b', 'c', 'd', 'e'], 'a', 'b'>>();
-
             assert.deepStrictEqual(tuple, ['a', 'b']);
         });
 
         it('If there is no matching type in B', async () => {
             const tuple = typia.random<Slice<['a', 'b', 'c', 'd', 'e'], 'a', 'z'>>();
-
             assert.deepStrictEqual(tuple, undefined);
+        });
+
+        it("If `from` is same to `to`, tuple's length is one.", async () => {
+            const tuple = typia.random<Slice<['a', 'b', 'c', 'd', 'e'], 'a', 'a'>>();
+            assert.deepStrictEqual(tuple, ['a']);
         });
     });
 });
