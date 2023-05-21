@@ -51,7 +51,7 @@ export type Lookbehind<Expression extends string, Condition extends string> = `(
 export type NegativeLookbehind<Expression extends string, Condition extends string> = `(?<!${Condition})${Expression}`;
 export type CapturingGroup<Expression extends string> = `(${Expression})`;
 export type KoreanAlphabet = `[\\uac00-\\ud7a3]`; // 44032-55203
-export type AlphabetTuple = [
+export type LowercaseAlphabetTuple = [
     'a',
     'b',
     'c',
@@ -78,16 +78,42 @@ export type AlphabetTuple = [
     'y',
     'z',
 ];
-export type LowercaseAlphabet = AlphabetTuple[number];
-export type UppercaseAlphabet = Uppercase<AlphabetTuple[number]>;
+export type UppercaseAlphabetTuple = [
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+];
+export type AlphabetTuple = [...UppercaseAlphabetTuple, ...LowercaseAlphabetTuple];
+export type LowercaseAlphabet = LowercaseAlphabetTuple[number];
+export type UppercaseAlphabet = UppercaseAlphabetTuple[number];
 export type Hexadecimal = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
 
 /**
  * Returns matching A to matching B in tuple form.
  * If there are no elements that match A or B, then never type.
  */
-// export type Slice<T extends string[], A extends string, B extends string> =
-
 export type Slice<T extends any[], A extends any, B extends any, CONDITION extends boolean = false> = T extends [
     infer X,
     ...infer Rest,
@@ -103,15 +129,32 @@ export type Slice<T extends any[], A extends any, B extends any, CONDITION exten
     ? never
     : [];
 
+export type IsAlphabet<T extends string> = Uppercase<T> extends Lowercase<T>
+    ? Lowercase<T> extends Uppercase<T>
+        ? true
+        : false
+    : false;
+
+export type IsUpperCase<T extends string> = Uppercase<T> extends T ? true : false;
+export type IsLowerCase<T extends string> = Lowercase<T> extends T ? true : false;
+
+export type UpperToLower<To extends string> = [...UppercaseAlphabetTuple, ...Slice<LowercaseAlphabetTuple, 'a', To>];
+
 export type CaracterSet<T extends string> = `[${T}]`;
 export type Range<T extends string, P extends string> = `${T}-${P}`;
-export type TypedRegExp<Pattern extends string> = Pattern extends `${string}${infer R1}${string}`
+export type TypedRegExp<Pattern extends string> = Pattern extends `${infer Prefix}${infer R1}${infer Postfix}`
     ? R1 extends CaracterSet<infer R2>
         ? R2 extends Range<infer R3, infer R4>
-            ? 'a'
+            ? IsUpperCase<R3> extends true
+                ? IsUpperCase<R4> extends true
+                    ? never // range reversed
+                    : `${Prefix}${string}${Postfix}`
+                : `${Prefix}${string}${Postfix}`
             : 'b'
         : 'c'
     : 'd';
+
+type answer = TypedRegExp<'a[a-z]b'>;
 
 export namespace RegExpFlag {
     export type HasIndices = 'd';
