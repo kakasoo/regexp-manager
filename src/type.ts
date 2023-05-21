@@ -145,6 +145,12 @@ export type UpperToLower<To extends string> = [...UppercaseAlphabetTuple, ...Sli
 export type CaracterSet<T extends string> = T extends '' ? never : `[${T}]`;
 export type Range<T extends string, P extends string> = `${T}-${P}`;
 
+export type Take<T extends any[], P extends number> = Sub<Length<T>, P> extends never
+    ? T
+    : T extends [...infer Rest, ...NTuple<Sub<Length<T>, P>>]
+    ? Rest
+    : never;
+
 export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<infer R4>
     ? R4 extends Range<infer R5, infer R6>
         ? IsUpperCase<R5> extends true

@@ -1,3 +1,4 @@
+import typia from 'typia';
 import type {
     And,
     Add,
@@ -17,12 +18,14 @@ import type {
     Push,
     RegExpTypeName,
     Sub,
+    TypedRegExp,
 } from './type';
 
 export class RegExpPatternBuilder<
     Pattern extends string = '',
     T extends Partial<Record<RegExpTypeName, string>>[] = [{ init: Pattern }],
     Depth extends number = 0,
+    Prediction = TypedRegExp<Pattern>, // predict a random string type that matches the `Pattern`
 > {
     private currentExpression: Pattern;
     private readonly status: T;

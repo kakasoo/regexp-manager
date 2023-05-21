@@ -277,5 +277,7 @@ describe('type test', () => {
                 assert.deepStrictEqual(uppercase.length, 2);
             }
         });
+
+        it(`new RegExpPatternBuilder('[a-z][A-Z][a-z]')'s Prediction type check`, async () => {});
     });
 });
