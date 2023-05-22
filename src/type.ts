@@ -211,3 +211,19 @@ export type RegExpTypeName =
     | 'lookbehind'
     | 'negativeLookahead'
     | 'negativeLookbehind';
+
+/**
+ * type a = EntriesToObject<[['a', 'b'], ['c', 'd']]>; // { a: "b"; c: "d"; }
+ */
+export type EntriesToObject<T extends NTuple<2>[]> = T extends [infer F, ...infer Rest]
+    ? F extends [infer K, infer V]
+        ? Rest extends NTuple<2>[]
+            ? Merge<Record<ToString<K>, V>, EntriesToObject<Rest>>
+            : never
+        : never
+    : {};
+
+/**
+ * incomplete
+ */
+export type ObjectToEntries<T extends Object> = T extends EntriesToObject<infer O> ? O : never;
