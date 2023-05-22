@@ -181,7 +181,7 @@ export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<inf
 
 export type _Prediction<Pattern extends string> = Pattern extends `[${infer R1}]${infer R2}`
     ? `${IsCaracterSet<R1>}${_Prediction<R2>}`
-    : '';
+    : Pattern;
 
 export namespace RegExpFlag {
     export type HasIndices = 'd';

@@ -2,7 +2,9 @@
 
 ![regexp-manager](https://github.com/kakasoo/regexp-manager/assets/55487286/6af292a4-33c4-4935-ac90-ce81d67ef20e)
 
-
+```bash
+$ npm i regexp-manager
+```
 
 This library creates regular expressions in a form similar to query builders. The benefits of this library are three.
 
