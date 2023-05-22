@@ -301,5 +301,17 @@ describe('type test', () => {
             const prediction = typia.random<TestType>();
             assert.deepStrictEqual(prediction, 'aaa');
         });
+
+        it('some test 1', async () => {
+            type TestType = _Prediction<'zzz[A-Z]{5,}zzz'>;
+            const prediction = typia.random<TestType>();
+            assert.deepStrictEqual(prediction, 'zzzAAAAAzzz');
+        });
+
+        it('some test 2', async () => {
+            type TestType = _Prediction<'zzz[A-Z]{5,}111a{3,5}'>;
+            const prediction = typia.random<TestType>();
+            assert.deepStrictEqual(prediction, 'zzzAAAAA111aaa');
+        });
     });
 });

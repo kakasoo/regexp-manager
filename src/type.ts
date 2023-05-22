@@ -196,8 +196,8 @@ export type _Prediction<
     : Pattern extends `{${infer N}}${infer R2}` // repeat `N` times
     ? _Prediction<R2, Repeat<BeforeString, ToNumberFromString<N>>>
     : Pattern extends `${infer R1}${infer R2}`
-    ? `${BeforeString}${R1}${_Prediction<R2>}`
-    : `${BeforeString}${Pattern}`;
+    ? `${BeforeString}${_Prediction<R2, R1>}`
+    : `${BeforeString}${Pattern}`; // `Pattern` is empty string
 
 export namespace RegExpFlag {
     export type HasIndices = 'd';
