@@ -179,9 +179,27 @@ export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<inf
         : 'Non-Alphabet' // maybe it will be other languages or number (or never type)
     : 'Non-Range';
 
-export type _Prediction<Pattern extends string> = Pattern extends `[${infer R1}]${infer R2}`
-    ? `${IsCaracterSet<R1>}${_Prediction<R2>}`
-    : Pattern;
+/**
+ * Means to repeat T string N times
+ */
+export type Repeat<T extends string, N extends number> = N extends 0 ? '' : `${T}${Repeat<T, Sub<N, 1>>}`;
+export type NumberString<T extends number> = `${T}`;
+export type ToNumberFromString<T extends string> = T extends NumberString<infer R> ? R : never;
+
+export type _Prediction<
+    Pattern extends string,
+    BeforeString extends string = '',
+> = Pattern extends `[${infer R1}]${infer R2}`
+    ? `${BeforeString}${_Prediction<R2, IsCaracterSet<R1>>}`
+    : Pattern extends `{${infer N},}${infer R2}` // more than `N`
+    ? 'incompleted'
+    : Pattern extends `{${infer N}}${infer R2}` // repeat `N` times
+    ? `${_Prediction<R2, Repeat<BeforeString, ToNumberFromString<N>>>}`
+    : Pattern extends `{${infer N1},${infer N2}}${infer R2}` // between N1 and N2
+    ? 'incompleted'
+    : Pattern extends `${infer R1}${infer R2}`
+    ? `${BeforeString}${R1}${_Prediction<R2>}`
+    : `${BeforeString}${Pattern}`;
 
 export namespace RegExpFlag {
     export type HasIndices = 'd';

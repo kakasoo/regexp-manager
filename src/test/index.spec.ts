@@ -2,7 +2,7 @@ import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import typia from 'typia';
-import { Slice, TypedRegExp } from '../type';
+import { Slice, _Prediction } from '../type';
 
 describe('new-feature', () => {
     describe('node-version 20.1.0 check', () => {
@@ -234,9 +234,9 @@ describe('type test', () => {
         });
     });
 
-    describe('TypedRegExp', () => {
+    describe('_Prediction', () => {
         it('[a-z] is lowercase', async () => {
-            const createLowercaseFn = typia.createRandom<TypedRegExp<'[a-z]'>>();
+            const createLowercaseFn = typia.createRandom<_Prediction<'[a-z]'>>();
 
             for (let i = 1; i <= 1000; i++) {
                 const lowercase = createLowercaseFn();
@@ -248,7 +248,7 @@ describe('type test', () => {
         });
 
         it('[a-Z] is never case', async () => {
-            const createNeverCaseFn = typia.createRandom<TypedRegExp<'[a-Z]'>>();
+            const createNeverCaseFn = typia.createRandom<_Prediction<'[a-Z]'>>();
 
             for (let i = 1; i <= 1000; i++) {
                 const lowercase = createNeverCaseFn();
@@ -260,7 +260,7 @@ describe('type test', () => {
         });
 
         it('[A-Z] is uppercase', async () => {
-            const createUppercaseFn = typia.createRandom<TypedRegExp<'[A-Z]'>>();
+            const createUppercaseFn = typia.createRandom<_Prediction<'[A-Z]'>>();
 
             for (let i = 1; i <= 1000; i++) {
                 const uppercase = createUppercaseFn();
@@ -269,7 +269,7 @@ describe('type test', () => {
         });
 
         it("[A-z][A-z]'s length is 2", async () => {
-            type TestType = TypedRegExp<'[A-Z][A-Z]'>;
+            type TestType = _Prediction<'[A-Z][A-Z]'>;
             const lengthIsTwoFn = typia.createRandom<TestType>();
 
             for (let i = 1; i <= 1000; i++) {
@@ -279,7 +279,27 @@ describe('type test', () => {
         });
 
         it(`new RegExpPatternBuilder('[a-z][A-Z][a-z]')'s Prediction type check`, async () => {
-            new RegExpPatternBuilder('[a-z][a-z][a-z][A-Z]');
+            type TestType = _Prediction<'[a-z][A-Z][A-Z]'>;
+            const prediction = typia.random<TestType>();
+            assert.deepStrictEqual(prediction, 'aAA');
+        });
+
+        it('If there is some string before characterSet.', async () => {
+            type TestType = _Prediction<'1[a-z]'>;
+            const prediction = typia.random<TestType>();
+            assert.deepStrictEqual(prediction, '1a');
+        });
+
+        it('If there is some string after characterSet.', async () => {
+            type TestType = _Prediction<'[a-z]1'>;
+            const prediction = typia.random<TestType>();
+            assert.deepStrictEqual(prediction, 'a1');
+        });
+
+        it('repeat N1', async () => {
+            type TestType = _Prediction<'[a-z]{3}'>;
+            const prediction = typia.random<TestType>();
+            assert.deepStrictEqual(prediction, 'aaa');
         });
     });
 });
