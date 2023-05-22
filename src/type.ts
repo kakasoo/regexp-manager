@@ -160,6 +160,7 @@ export type UpperToUpper<R1 extends string, R2 extends string, N extends number>
     Slice<UppercaseAlphabets, R1, R2>,
     N
 >;
+
 export type LowerToUpper<R1 extends string, R2 extends string, N extends number> = Take<
     Slice<LowercaseAlphabets, R1, R2>,
     N
@@ -170,16 +171,16 @@ export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<inf
     ? R4 extends Range<infer R5, infer R6>
         ? IsUpperCase<R5> extends true
             ? IsUpperCase<R6> extends true
-                ? `${UpperToUpper<R5, R6, 26>[number]}` // for example 'A-Z' // `${UpperToUpper<R5, R6>[number]}`
-                : `${UpperToLower<R6, 26>[number]}` // for example 'A-z'
+                ? `${ToStringTuple<UpperToUpper<R5, R6, 1>>[number]}` // for example 'A-Z' // `${UpperToUpper<R5, R6>[number]}`
+                : `${ToStringTuple<UpperToLower<R6, 1>>[number]}` // for example 'A-z'
             : IsUpperCase<R6> extends true
             ? never //  range reversed case, for example 'a-Z'. So, it will be never type
-            : `${LowerToUpper<R5, R6, 26>[number]}` // for example 'a-Z'
+            : `${ToStringTuple<LowerToUpper<R5, R6, 1>>[number]}` // for example 'a-Z'
         : 'Non-Alphabet' // maybe it will be other languages or number (or never type)
     : 'Non-Range';
 
-export type TypedRegExp<Pattern extends string> = Pattern extends `[${infer R1}]${infer R2}`
-    ? `${IsCaracterSet<R1>}${TypedRegExp<R2>}`
+export type _Prediction<Pattern extends string> = Pattern extends `[${infer R1}]${infer R2}`
+    ? `${IsCaracterSet<R1>}${_Prediction<R2>}`
     : '';
 
 export namespace RegExpFlag {
