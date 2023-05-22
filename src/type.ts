@@ -56,6 +56,7 @@ export type LowercaseAlphabets = [
     'b',
     'c',
     'd',
+    'f',
     'e',
     'g',
     'h',
@@ -106,6 +107,7 @@ export type UppercaseAlphabets = [
     'Y',
     'Z',
 ];
+
 export type AlphabetTuple = [...UppercaseAlphabets, ...LowercaseAlphabets];
 export type LowercaseAlphabet = LowercaseAlphabets[number];
 export type UppercaseAlphabet = UppercaseAlphabets[number];
@@ -144,26 +146,35 @@ export type IsLowerCase<T extends string> = Lowercase<T> extends T ? true : fals
 export type CaracterSet<T extends string> = T extends '' ? never : `[${T}]`;
 export type Range<T extends string, P extends string> = `${T}-${P}`;
 
-export type Take<T extends any[], P extends number = 5, R extends any[] = []> = Length<R> extends P
+export type Take<T extends any[], P extends number, R extends any[] = []> = Length<R> extends P
     ? R
     : T extends [infer F, ...infer Rest]
     ? Take<Rest, P, Push<R, F>>
     : never;
 
-export type UpperToLower<To extends string> = Take<[...UppercaseAlphabets, ...Slice<LowercaseAlphabets, 'a', To>]>;
-export type UpperToUpper<R1 extends string, R2 extends string> = Take<Slice<UppercaseAlphabets, R1, R2>>;
-export type LowerToUpper<R1 extends string, R2 extends string> = Take<Slice<LowercaseAlphabets, R1, R2>>;
+export type UpperToLower<To extends string, N extends number> = Take<
+    [...UppercaseAlphabets, ...Slice<LowercaseAlphabets, 'a', To>],
+    N
+>;
+export type UpperToUpper<R1 extends string, R2 extends string, N extends number> = Take<
+    Slice<UppercaseAlphabets, R1, R2>,
+    N
+>;
+export type LowerToUpper<R1 extends string, R2 extends string, N extends number> = Take<
+    Slice<LowercaseAlphabets, R1, R2>,
+    N
+>;
 
 export type TupleToUnion<T extends NTuple<number>> = T[number];
 export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<infer R4>
     ? R4 extends Range<infer R5, infer R6>
         ? IsUpperCase<R5> extends true
             ? IsUpperCase<R6> extends true
-                ? `${UpperToUpper<R5, R6>[number]}` // for example 'A-Z' // `${UpperToUpper<R5, R6>[number]}`
-                : `${UpperToLower<R6>[number]}` // for example 'A-z'
+                ? `${UpperToUpper<R5, R6, 26>[number]}` // for example 'A-Z' // `${UpperToUpper<R5, R6>[number]}`
+                : `${UpperToLower<R6, 26>[number]}` // for example 'A-z'
             : IsUpperCase<R6> extends true
             ? never //  range reversed case, for example 'a-Z'. So, it will be never type
-            : `${LowerToUpper<R5, R6>[number]}` // for example 'a-Z'
+            : `${LowerToUpper<R5, R6, 26>[number]}` // for example 'a-Z'
         : 'Non-Alphabet' // maybe it will be other languages or number (or never type)
     : 'Non-Range';
 
