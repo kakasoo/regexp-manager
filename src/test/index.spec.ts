@@ -313,5 +313,11 @@ describe('type test', () => {
             const prediction = typia.random<TestType>();
             assert.deepStrictEqual(prediction, 'zzzAAAAA111aaa');
         });
+
+        it('digit range', async () => {
+            type TestType = _Prediction<'[0-9]'>;
+            const prediction = typia.random<TestType>();
+            assert.deepStrictEqual(prediction, '0');
+        });
     });
 });

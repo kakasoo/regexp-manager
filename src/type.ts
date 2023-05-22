@@ -142,6 +142,7 @@ export type IsAlphabet<T extends string> = Uppercase<T> extends Lowercase<T>
 
 export type IsUpperCase<T extends string> = Uppercase<T> extends T ? true : false;
 export type IsLowerCase<T extends string> = Lowercase<T> extends T ? true : false;
+export type IsDigit<T extends string> = TupleIncludes<Digits, T>;
 
 export type CaracterSet<T extends string> = T extends '' ? never : `[${T}]`;
 export type Range<T extends string, P extends string> = `${T}-${P}`;
@@ -166,18 +167,27 @@ export type LowerToUpper<R1 extends string, R2 extends string, N extends number>
     N
 >;
 
+export type Digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+export type NumberToNumber<R1 extends string, R2 extends string, N extends number> = Take<Slice<Digits, R1, R2>, N>;
+
 export type TupleToUnion<T extends NTuple<number>> = T[number];
 export type IsCaracterSet<R2 extends string> = `[${R2}]` extends CaracterSet<infer R4>
     ? R4 extends Range<infer R5, infer R6>
-        ? IsUpperCase<R5> extends true
+        ? IsDigit<R5> extends true
+            ? IsDigit<R6> extends true
+                ? `${ToStringTuple<NumberToNumber<R5, R6, 1>>[number]}` // for example 'a-Z'
+                : '' // one is digit, but the other isn't.
+            : IsUpperCase<R5> extends true
             ? IsUpperCase<R6> extends true
                 ? `${ToStringTuple<UpperToUpper<R5, R6, 1>>[number]}` // for example 'A-Z' // `${UpperToUpper<R5, R6>[number]}`
                 : `${ToStringTuple<UpperToLower<R6, 1>>[number]}` // for example 'A-z'
-            : IsUpperCase<R6> extends true
-            ? never //  range reversed case, for example 'a-Z'. So, it will be never type
-            : `${ToStringTuple<LowerToUpper<R5, R6, 1>>[number]}` // for example 'a-Z'
-        : 'Non-Alphabet' // maybe it will be other languages or number (or never type)
-    : 'Non-Range';
+            : IsLowerCase<R5> extends true
+            ? IsUpperCase<R6> extends true
+                ? never //  range reversed case, for example 'a-Z'. So, it will be never type
+                : `${ToStringTuple<LowerToUpper<R5, R6, 1>>[number]}` // for example 'a-Z'
+            : '' // one is digit, but the other isn't.
+        : '' // Non-Alphabet, maybe it will be other languages or number (or never type)
+    : ''; // Non-Range
 
 /**
  * Means to repeat T string N times
@@ -225,12 +235,16 @@ export type ReplaceAll<S extends string, From extends string, To extends string>
     ? `${First}${To}`
     : S;
 
-export type Includes<T extends string, P extends string> = T extends `${string}${P}${string}` ? true : false;
-
+export type StringIncludes<T extends string, P extends string> = T extends `${string}${P}${string}` ? true : false;
+export type TupleIncludes<T extends readonly any[], U> = T extends [infer P, ...infer R] // T가 P와 나머지 R로 이루어진 배열이라면, 즉 length가 최소한 1 이상인 경우라면
+    ? Equal<U, P> extends true
+        ? true
+        : TupleIncludes<R, U> // U가 P랑 같다면 true, 아니라면 Includes를 재귀적으로 호출한다.
+    : false;
 /**
  * It refers to a substitute string, and if there is an un substitute key-value pair, it is inferred as `never`.
  */
-export type Replaced<T extends string> = Includes<T, `\${${string}}`> extends true ? never : T;
+export type Replaced<T extends string> = StringIncludes<T, `\${${string}}`> extends true ? never : T;
 
 export type RegExpTypeName =
     | Exclude<MethodNames<RegExpPatternBuilder<any>>, 'expression' | 'getRegExp'>
