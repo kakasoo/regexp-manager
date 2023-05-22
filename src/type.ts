@@ -191,12 +191,12 @@ export type _Prediction<
     BeforeString extends string = '',
 > = Pattern extends `[${infer R1}]${infer R2}`
     ? `${BeforeString}${_Prediction<R2, IsCaracterSet<R1>>}`
+    : Pattern extends `{${infer N1},${infer N2}}${infer R2}` // between N1 and N2, N2 can be empty string, so it will be above `more than` condtion`.
+    ? _Prediction<R2, Repeat<BeforeString, ToNumberFromString<N1>>>
     : Pattern extends `{${infer N},}${infer R2}` // more than `N`
-    ? 'incompleted'
+    ? _Prediction<R2, Repeat<BeforeString, ToNumberFromString<N>>>
     : Pattern extends `{${infer N}}${infer R2}` // repeat `N` times
-    ? `${_Prediction<R2, Repeat<BeforeString, ToNumberFromString<N>>>}`
-    : Pattern extends `{${infer N1},${infer N2}}${infer R2}` // between N1 and N2
-    ? 'incompleted'
+    ? _Prediction<R2, Repeat<BeforeString, ToNumberFromString<N>>>
     : Pattern extends `${infer R1}${infer R2}`
     ? `${BeforeString}${R1}${_Prediction<R2>}`
     : `${BeforeString}${Pattern}`;
