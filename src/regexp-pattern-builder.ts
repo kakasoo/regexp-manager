@@ -1,4 +1,4 @@
-import typia from 'typia';
+import typia, { Primitive } from 'typia';
 import type {
     And,
     Add,
@@ -42,6 +42,14 @@ export class RegExpPatternBuilder<
     get path(): T {
         return this.status;
     }
+
+    /**
+     * It is judged to be an impossible method, but I commit only this time for recording.
+     */
+    // predict() {
+    //     return typia.random<Prediction>();
+    //     // return typia.random<_Prediction<Pattern>>();
+    // }
 
     /**
      * Check that the results of the two regular expression builders are the same.
