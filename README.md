@@ -69,9 +69,9 @@ import { RegExpPatternBuilder } from 'regexp-manager';
  * result : '(010|011)[0-9]{3,4}[0-9]{4,4}'
  */
 const koreanPhoneNumber = new RegExpPatternBuilder('')
-    .capturing(() => new RegExpPatternBuilder('010').or('011'))
-    .and(() => new RegExpPatternBuilder('[0-9]').between(3, 4))
-    .and(() => new RegExpPatternBuilder('[0-9]').between(4, 4)).expression;
+    .capturing((qb) => qb.and('010').or('011'))
+    .and((qb) => qb,and('[0-9]').between(3, 4))
+    .and((qb) => qb.and('[0-9]').between(4, 4)).expression;
 ```
 
 If you write a function that returns the string or additional builder according to the inferred type, you can check the result at the time of compilation.
