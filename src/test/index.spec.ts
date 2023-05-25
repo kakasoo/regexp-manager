@@ -314,10 +314,22 @@ describe('type test', () => {
             assert.deepStrictEqual(prediction, 'zzzAAAAA111aaa');
         });
 
-        it('digit range', async () => {
+        it('digit range 1', async () => {
             type TestType = _Prediction<'[0-9]'>;
             const prediction = typia.random<TestType>();
             assert.deepStrictEqual(prediction, '0');
+        });
+
+        it('digit range 2', async () => {
+            type TestType = _Prediction<'[1-9]'>;
+            const prediction = typia.random<TestType>();
+            assert.deepStrictEqual(prediction, '1');
+        });
+
+        it('The first type parameter of the Slice type is the intermediate element of the tuple', async () => {
+            type TestType = Slice<['a', 'b', 'c', 'd', 'e'], 'b', 'd'>;
+            const sliced = typia.random<TestType>();
+            assert.deepStrictEqual(sliced, ['b', 'c', 'd']);
         });
     });
 });

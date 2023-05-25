@@ -129,10 +129,12 @@ export type Slice<T extends any[], A extends any, B extends any, CONDITION exten
         ? X extends B
             ? [X, ...Slice<Rest, A, B, false>] // include A & CONDTION type is true
             : [X, ...Slice<Rest, A, B, true>] // include A & CONDTION type is true
-        : []
+        : Slice<Rest, A, B, false> // The first type parameter of the Slice type is the intermediate element of the tuple...
     : CONDITION extends true // If CONDITION is still true while circulating all arrays, then the last point was not found, so never
     ? never
     : [];
+
+type c = Slice<LowercaseAlphabets, 'b', 'd'>;
 
 export type IsAlphabet<T extends string> = Uppercase<T> extends Lowercase<T>
     ? Lowercase<T> extends Uppercase<T>
