@@ -55,7 +55,7 @@ const lookahead = new RegExpPatternBuilder('b').includes('RIGHT', 'a');
 // Below return '(?<!a)b'. And it's also inferred from the type.
 const nagativeLookbhind = new RegExpPatternBuilder('b').excludes('LEFT', 'a');
 
-// `exclude`("left", P) method means negative lookbehind
+// `exclude`("right", P) method means negative lookbehind
 // Below return 'b(?!a)'. And it's also inferred from the type.
 const negativeLookahead = new RegExpPatternBuilder('b').excludes('RIGHT', 'a');
 ```
