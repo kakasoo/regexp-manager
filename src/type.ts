@@ -256,10 +256,7 @@ export type RegExpTypeName =
     | 'negativeLookahead'
     | 'negativeLookbehind';
 
-/**
- * type a = EntriesToObject<[['a', 'b'], ['c', 'd']]>; // { a: "b"; c: "d"; }
- */
-export type EntriesToObject<T extends NTuple<2>[]> = T extends [infer F, ...infer Rest]
+export type EntriesToObject<T extends Array<NTuple<2>>> = T extends [infer F, ...infer Rest]
     ? F extends [infer K, infer V]
         ? Rest extends NTuple<2>[]
             ? Merge<Record<ToString<K>, V>, EntriesToObject<Rest>>
@@ -267,7 +264,12 @@ export type EntriesToObject<T extends NTuple<2>[]> = T extends [infer F, ...infe
         : never
     : {};
 
-/**
- * incomplete
- */
-export type ObjectToEntries<T extends Object> = T extends EntriesToObject<infer O> ? O : never;
+export type IsRecord<T> = T extends Record<PropertyKey, any> ? T : never;
+export type ObjectToEntries<T extends Object, Entries extends Array<NTuple<2>> = []> = T extends Merge<
+    Record<infer Key, infer Type>,
+    infer Rest
+>
+    ? Equal<Rest, {}> extends true
+        ? [...Entries, [Key, Type]]
+        : ObjectToEntries<IsRecord<Rest>, [...Entries, [Key, Type]]>
+    : [];
