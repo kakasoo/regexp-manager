@@ -265,6 +265,15 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
+    /**
+     * it means non-capturing group.
+     */
+    // nonCapturing() {}
+
+    /**
+     *
+     * @param value
+     */
     or<P extends string>(
         value: (qb: RegExpPatternBuilder<'', [], 0>) => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
     ): RegExpPatternBuilder<Or<Pattern, P>, Push<T, { or: P }>, NToNumber<Add<Depth, 1>>>;
