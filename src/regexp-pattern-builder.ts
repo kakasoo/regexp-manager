@@ -1,4 +1,3 @@
-import typia, { Primitive } from 'typia';
 import type {
     And,
     Add,
@@ -35,10 +34,21 @@ export class RegExpPatternBuilder<
         this.status = status;
     }
 
+    /**
+     * Returns the string created by `RegExpPatternBuilder` so far.
+     *
+     * @returns `Pattern`
+     */
     get expression(): Pattern {
         return this.currentExpression;
     }
 
+    /**
+     * Returns a tuple containing the methods called by `RegExpPatternBuilder` so far in order.
+     * However, the first value contains an `init` object that unconditionally means an initial value.
+     *
+     * @example [{ init: "left" }, { or: "right" }]
+     */
     get path(): T {
         return this.status;
     }
@@ -61,13 +71,20 @@ export class RegExpPatternBuilder<
         return this.expression.toString() === comparable.expression.toString();
     }
 
+    /**
+     * Returns the regular expression object using the string completed so far.
+     *
+     * @returns new RegExp<`Pattern`>()
+     */
     getRegExp(): RegExp {
         return RegExp(this.expression);
     }
 
     /**
-     * a letter or group that repeats less than that number
-     * @param value limit
+     * `Quantifier` method.
+     * A letter or group that repeats less than that number.
+     * @param value the standard value
+     * @returns RegExpPatternBuilder
      */
     lessThan<P extends number>(
         value: P,
@@ -79,8 +96,10 @@ export class RegExpPatternBuilder<
     }
 
     /**
-     * a letter or group that equals or repeats less than that number
-     * @param value
+     * `Quantifier` method.
+     * A letter or group that equals or repeats less than that number.
+     * @param value the standard value
+     * @returns RegExpPatternBuilder
      */
     lessThanOrEqual<P extends number>(
         value: P,
@@ -96,8 +115,10 @@ export class RegExpPatternBuilder<
     }
 
     /**
-     * a letter or group that repeats more than that number
-     * @param value
+     * `Quantifier` method.
+     * A letter or group that repeats more than that number.
+     * @param value the standard value
+     * @returns RegExpPatternBuilder
      */
     moreThan<P extends number>(
         value: P,
@@ -110,8 +131,10 @@ export class RegExpPatternBuilder<
     }
 
     /**
-     * a letter or group that equals or repeats more than that number
-     * @param value
+     * `Quantifier` method.
+     * A letter or group that equals or repeats more than that number.
+     * @param value the standard value
+     * @returns RegExpPatternBuilder
      */
     moreThanOrEqual<P extends number>(
         value: P,
@@ -128,8 +151,9 @@ export class RegExpPatternBuilder<
 
     /**
      * a letter or group that `moreThanOrEqual` value1 and `lessThanOrEqual` values
-     * @param value1
-     * @param value2
+     * @param value1 the standard value which means 'from'
+     * @param value2 the standard value which means 'to'
+     * @returns RegExpPatternBuilder
      */
     between<N1 extends number, N2 extends number>(
         value1: N1,
@@ -141,6 +165,12 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
+    /**
+     * This method is a simpler version of lookahead, lookbehind.
+     * @param direction `LEFT` or `RIGHT`, where to add?
+     * @param value
+     * @returns RegExpPatternBuilder
+     */
     includes<P extends string>(
         direction: 'LEFT',
         value: P,
@@ -177,6 +207,12 @@ export class RegExpPatternBuilder<
         }
     }
 
+    /**
+     * This method is a simpler version of negative-lookahead, lgegative-ookbehind.
+     * @param direction `LEFT` or `RIGHT`, where to add?
+     * @param value
+     * @returns RegExpPatternBuilder
+     */
     excludes<P extends string>(
         direction: 'LEFT',
         value: P,
@@ -231,6 +267,11 @@ export class RegExpPatternBuilder<
 
     join(): any {}
 
+    /**
+     * This method add `?` character. This means `optional`.
+     * @param value
+     * @returns RegExpPatternBuilder
+     */
     optional<P extends string>(
         value: (qb: RegExpPatternBuilder<'', [], 0>) => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
     ): RegExpPatternBuilder<Optional<P>, Push<T, { optional: P }>, NToNumber<Add<Depth, 1>>>;
@@ -248,6 +289,11 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
+    /**
+     * This method add `()` characters. This means `capturing group`.
+     * @param value
+     * @returns RegExpPatternBuilder
+     */
     capturing<P extends string>(
         value: (qb: RegExpPatternBuilder<'', [], 0>) => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
     ): RegExpPatternBuilder<CapturingGroup<P>, Push<T, { capturing: P }>, NToNumber<Add<Depth, 1>>>;
@@ -271,8 +317,9 @@ export class RegExpPatternBuilder<
     // nonCapturing() {}
 
     /**
-     *
-     * @param value
+     * It means 'or syntax' using pipe characters in regular expressions.
+     * The 'or syntax' can also be checked in advance by type level.
+     * @param value `string` that you want to add.
      */
     or<P extends string>(
         value: (qb: RegExpPatternBuilder<'', [], 0>) => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
@@ -289,6 +336,10 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
+    /**
+     * The 'and syntax' simply connects strings. In a regular expression, sometimes it is more readable to divide and combine characters in semantic units.
+     * @param value `string` that you want to add.
+     */
     and<P extends string>(
         value: (qb: RegExpPatternBuilder<'', [], 0>) => RegExpPatternBuilder<P, Record<string, string>[], number> | P,
     ): RegExpPatternBuilder<And<Pattern, P>, Push<T, { and: P }>, NToNumber<Add<Depth, 1>>>;
