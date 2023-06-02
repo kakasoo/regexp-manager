@@ -333,3 +333,11 @@ describe('type test', () => {
         });
     });
 });
+
+describe('async', () => {
+    it('test 1.', async () => {
+        const pattern = new RegExpPatternBuilder().and(async () => {
+            return 'abc';
+        });
+    });
+});

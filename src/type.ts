@@ -134,8 +134,6 @@ export type Slice<T extends any[], A extends any, B extends any, CONDITION exten
     ? never
     : [];
 
-type c = Slice<LowercaseAlphabets, 'b', 'd'>;
-
 export type IsAlphabet<T extends string> = Uppercase<T> extends Lowercase<T>
     ? Lowercase<T> extends Uppercase<T>
         ? true
@@ -257,19 +255,11 @@ export type RegExpTypeName =
     | 'negativeLookbehind';
 
 export type EntriesToObject<T extends Array<NTuple<2>>> = T extends [infer F, ...infer Rest]
-    ? F extends [infer K, infer V]
+    ? F extends [infer K extends string, infer V]
         ? Rest extends NTuple<2>[]
-            ? Merge<Record<ToString<K>, V>, EntriesToObject<Rest>>
+            ? Merge<Record<K, V>, EntriesToObject<Rest>>
             : never
         : never
     : {};
 
-export type IsRecord<T> = T extends Record<PropertyKey, any> ? T : never;
-export type ObjectToEntries<T extends Object, Entries extends Array<NTuple<2>> = []> = T extends Merge<
-    Record<infer Key, infer Type>,
-    infer Rest
->
-    ? Equal<Rest, {}> extends true
-        ? [...Entries, [Key, Type]]
-        : ObjectToEntries<IsRecord<Rest>, [...Entries, [Key, Type]]>
-    : [];
+export type NotAUnion<T, U = T> = U extends any ? ([T] extends [U] ? T : never) : never;

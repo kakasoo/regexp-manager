@@ -18,6 +18,7 @@ import type {
     RegExpTypeName,
     Sub,
     _Prediction,
+    Replaced,
 } from './type';
 
 export class RegExpPatternBuilder<
@@ -367,5 +368,18 @@ export class RegExpPatternBuilder<
     private option<K extends RegExpTypeName, P>(key: K, value: P): [...T, Record<K, P>] {
         const process: Record<string, P> = { [key]: value };
         return [...this.status, process];
+    }
+
+    /**
+     * incomplete method
+     * @param pattern
+     * @param substituteMap
+     * @returns
+     */
+    private replace<P extends string, SubstituteMap extends Record<string, string>>(
+        pattern: P,
+        substituteMap: SubstituteMap,
+    ): Replaced<P> {
+        return '' as any;
     }
 }
