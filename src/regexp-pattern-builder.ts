@@ -78,7 +78,7 @@ export class RegExpPatternBuilder<
      * @returns new RegExp<`Pattern`>()
      */
     getRegExp(): RegExp {
-        return RegExp(this.expression);
+        return RegExp(this.expression, 'g');
     }
 
     /**
