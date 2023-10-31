@@ -91,6 +91,8 @@ export class RegExpPatternBuilder<
         value: P,
     ): RegExpPatternBuilder<LessThan<Pattern, P>, Push<T, { lessThan: `${P}` }>, NToNumber<Add<Depth, 1>>> {
         const operand: `${P}` = `${value}`;
+        if (this.checkQuantifier('lessThan')) {
+        }
         const status = this.option('lessThan', operand);
         const expression: LessThan<Pattern, P> = `${this.expression}{1,${(value - 1) as Sub<P, 1>}}`;
         return new RegExpPatternBuilder(expression, status);
@@ -110,6 +112,8 @@ export class RegExpPatternBuilder<
         NToNumber<Add<Depth, 1>>
     > {
         const operand: `${P}` = `${value}`;
+        if (this.checkQuantifier('lessThanOrEqual')) {
+        }
         const status = this.option('lessThanOrEqual', operand);
         const expression: LessThanOrEqual<Pattern, P> = `${this.expression}{1,${value}}`;
         return new RegExpPatternBuilder(expression, status);
@@ -125,6 +129,8 @@ export class RegExpPatternBuilder<
         value: P,
     ): RegExpPatternBuilder<MoreThan<Pattern, P>, Push<T, { moreThan: `${P}` }>, NToNumber<Add<Depth, 1>>> {
         const operand: `${P}` = `${value}`;
+        if (this.checkQuantifier('moreThan')) {
+        }
         const status = this.option('moreThan', operand);
         const addOne = (value + 1) as Add<P, 1>;
         const expression: MoreThan<Pattern, P> = `${this.expression}{${addOne},}`;
@@ -145,6 +151,8 @@ export class RegExpPatternBuilder<
         NToNumber<Add<Depth, 1>>
     > {
         const operand: `${P}` = `${value}`;
+        if (this.checkQuantifier('moreThanOrEqual')) {
+        }
         const status = this.option('moreThanOrEqual', operand);
         const expression: MoreThanOrEqual<Pattern, P> = `${this.expression}{${value},}`;
         return new RegExpPatternBuilder(expression, status);
@@ -383,12 +391,19 @@ export class RegExpPatternBuilder<
         return '' as any;
     }
 
-    private checkQuantifier() {
+    private checkQuantifier(currentMethod: 'lessThan' | 'lessThanOrEqual' | 'moreThan' | 'moreThanOrEqual'): boolean {
         const [previousCalledMethod] = Object.keys(this.path.at(-1) ?? {});
-        if (previousCalledMethod === this.lessThan.name) {
-        } else if (previousCalledMethod === this.lessThanOrEqual.name) {
-        } else if (previousCalledMethod === this.moreThan.name) {
-        } else if (previousCalledMethod === this.moreThanOrEqual.name) {
+        if (
+            (previousCalledMethod === this.lessThan.name || previousCalledMethod === this.lessThanOrEqual.name) &&
+            (currentMethod === 'moreThan' || currentMethod === 'moreThanOrEqual')
+        ) {
+            return true;
+        } else if (
+            (previousCalledMethod === this.moreThan.name || previousCalledMethod === this.moreThanOrEqual.name) &&
+            (currentMethod === 'lessThan' || currentMethod === 'lessThanOrEqual')
+        ) {
+            return true;
         }
+        return false;
     }
 }
