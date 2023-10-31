@@ -382,4 +382,13 @@ export class RegExpPatternBuilder<
     ): Replaced<P> {
         return '' as any;
     }
+
+    private checkQuantifier() {
+        const [previousCalledMethod] = Object.keys(this.path.at(-1) ?? {});
+        if (previousCalledMethod === this.lessThan.name) {
+        } else if (previousCalledMethod === this.lessThanOrEqual.name) {
+        } else if (previousCalledMethod === this.moreThan.name) {
+        } else if (previousCalledMethod === this.moreThanOrEqual.name) {
+        }
+    }
 }
