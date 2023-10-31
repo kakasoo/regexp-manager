@@ -34,6 +34,7 @@
     },
     "devDependencies": {
         "@types/node": "^20.2",
+        "prettier": "^3.0.3",
         "rimraf": "^4.0.5",
         "ts-node": "^10.9.1",
         "ts-patch": "^2.1.0",
