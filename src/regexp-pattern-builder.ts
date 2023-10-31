@@ -391,6 +391,13 @@ export class RegExpPatternBuilder<
         return '' as any;
     }
 
+    /**
+     * Method `checkQuantifier` tells the `between` case.
+     * If the previous method and the following method are respectively about quantity and can be specified in range,
+     * they are synthesized in a 'between' case.
+     * @param currentMethod
+     * @returns {boolean} If it is true, `between` case.
+     */
     private checkQuantifier(currentMethod: 'lessThan' | 'lessThanOrEqual' | 'moreThan' | 'moreThanOrEqual'): boolean {
         const [previousCalledMethod] = Object.keys(this.path.at(-1) ?? {});
         if (
