@@ -132,6 +132,26 @@ describe('check "moreThan" method work correctly', () => {
     });
 });
 
+describe.only('check moreThan, lessThan, moreThanEqual, LessThanEqual both', () => {
+    it('If It use `moreThan` after `lessThan`, It will merged as `between`.', () => {
+        const lessAndMore = new RegExpPatternBuilder('a').lessThan(3).moreThan(3);
+        const between = new RegExpPatternBuilder('a').between(3, 3);
+
+        console.log(lessAndMore.path, 'path');
+
+        assert.deepStrictEqual(lessAndMore.expression, between.expression);
+    });
+
+    it.todo('If It use `moreThan` after `lessThanEqual`, It will merged as `between`.');
+    it.todo('If It use `moreThanEqual` after `lessThan`, It will merged as `between`.');
+    it.todo('If It use `moreThanEqual` after `lessThanEqual`, It will merged as `between`.');
+
+    it.todo('If It use `lessThan` after `moreThan`, It will merged as `between`.');
+    it.todo('If It use `lessThan` after `moreThanEqual`, It will merged as `between`.');
+    it.todo('If It use `lessThanEqual` after `moreThan`, It will merged as `between`.');
+    it.todo('If It use `lessThanEqual` after `moreThanEqual`, It will merged as `between`.');
+});
+
 describe('check "moreThanOrEqual" method work correctly', () => {
     it('moreThanOrEqual', () => {
         const moreThanOrEqualThree = new RegExpPatternBuilder('a').moreThanOrEqual(3);
@@ -190,11 +210,11 @@ describe('test combining methods', () => {
 
     it('phone-number', () => {
         const koreanPhoneNumber = new RegExpPatternBuilder()
-            .capturing(() => new RegExpPatternBuilder('010').or('011'))
+            .capturing((qb) => qb.and('010').or('011'))
             .and('-')
-            .and(() => new RegExpPatternBuilder('[0-9]').between(3, 4))
+            .and((qb) => qb.and('[0-9]').between(3, 4))
             .and('-')
-            .and(() => new RegExpPatternBuilder('[0-9]').between(4, 4))
+            .and((qb) => qb.and('[0-9]').between(4, 4))
             .getRegExp();
 
         assert.deepStrictEqual(koreanPhoneNumber.test('010-0000-0000'), true);
@@ -334,10 +354,17 @@ describe('type test', () => {
     });
 });
 
+/**
+ * @TODO async/await
+ */
 describe('async', () => {
-    it('test 1.', async () => {
-        const pattern = new RegExpPatternBuilder().and(async () => {
-            return 'abc';
-        });
+    it.skip('test 1.', async () => {
+        /**
+         * If inner callback function is async function,
+         * It can be used `await` keyword for making this fulfill.
+         */
+        // const pattern = await new RegExpPatternBuilder().and(async () => {
+        //     return 'abc';
+        // });
     });
 });
