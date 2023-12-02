@@ -1,7 +1,7 @@
-import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import typia from 'typia';
+import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import { Slice, _Prediction } from '../type';
 
 describe('new-feature', () => {
@@ -354,17 +354,21 @@ describe('type test', () => {
     });
 });
 
-/**
- * @TODO async/await
- */
-describe('async', () => {
-    it.skip('test 1.', async () => {
-        /**
-         * If inner callback function is async function,
-         * It can be used `await` keyword for making this fulfill.
-         */
-        // const pattern = await new RegExpPatternBuilder().and(async () => {
-        //     return 'abc';
-        // });
+describe('beginning TEST', () => {
+    it('TEST 1', async () => {
+        const builder = new RegExpPatternBuilder('abc').beginning();
+        assert.deepStrictEqual(builder.expression === '^abc', true);
     });
 });
+
+// describe('async', () => {
+//     it('test 1.', async () => {
+//         const pattern = new RegExpPatternBuilder()
+//             .and(() => {
+//                 return 'abc';
+//             })
+//             .getRegExp();
+
+//         assert.deepEqual(1, 2);
+//     });
+// });
