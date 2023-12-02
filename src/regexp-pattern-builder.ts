@@ -1,6 +1,6 @@
 import type {
-    And,
     Add,
+    And,
     Between,
     CapturingGroup,
     LessThan,
@@ -9,16 +9,16 @@ import type {
     Lookbehind,
     MoreThan,
     MoreThanOrEqual,
-    NToNumber,
     NegativeLookahead,
     NegativeLookbehind,
-    Or,
+    NToNumber,
     Optional,
+    Or,
     Push,
     RegExpTypeName,
+    Replaced,
     Sub,
     _Prediction,
-    Replaced,
 } from './type';
 
 export class RegExpPatternBuilder<
@@ -79,6 +79,20 @@ export class RegExpPatternBuilder<
      */
     getRegExp(): RegExp {
         return RegExp(this.expression, 'g');
+    }
+
+    /**
+     * NOT IMPELEMENT
+     * DON'T USE THIS METHOD.
+     *
+     * It is recommended not to use it because it is still incomplete `type infer`.
+     *
+     * @returns
+     */
+    beginning(): RegExpPatternBuilder<`^${Pattern}`, Push<T, { beginning: `^${Pattern}` }>, NToNumber<Add<Depth, 1>>> {
+        const status = this.option('beginning', `^${this.expression}`) as any;
+        const expression = `^${this.expression}` as const;
+        return new RegExpPatternBuilder(expression, status);
     }
 
     /**

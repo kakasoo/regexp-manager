@@ -1,7 +1,7 @@
-import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import typia from 'typia';
+import { RegExpPatternBuilder } from '../regexp-pattern-builder';
 import { Slice, _Prediction } from '../type';
 
 describe('new-feature', () => {
@@ -190,11 +190,11 @@ describe('test combining methods', () => {
 
     it('phone-number', () => {
         const koreanPhoneNumber = new RegExpPatternBuilder()
-            .capturing(() => new RegExpPatternBuilder('010').or('011'))
+            .capturing((qb) => qb.and('010').or('011'))
             .and('-')
-            .and(() => new RegExpPatternBuilder('[0-9]').between(3, 4))
+            .and((qb) => qb.and('[0-9]').between(3, 4))
             .and('-')
-            .and(() => new RegExpPatternBuilder('[0-9]').between(4, 4))
+            .and((qb) => qb.and('[0-9]').between(4, 4))
             .getRegExp();
 
         assert.deepStrictEqual(koreanPhoneNumber.test('010-0000-0000'), true);
@@ -334,10 +334,21 @@ describe('type test', () => {
     });
 });
 
-describe('async', () => {
-    it('test 1.', async () => {
-        const pattern = new RegExpPatternBuilder().and(async () => {
-            return 'abc';
-        });
+describe('beginning TEST', () => {
+    it('TEST 1', async () => {
+        const builder = new RegExpPatternBuilder('abc').beginning();
+        assert.deepStrictEqual(builder.expression === '^abc', true);
     });
 });
+
+// describe('async', () => {
+//     it('test 1.', async () => {
+//         const pattern = new RegExpPatternBuilder()
+//             .and(() => {
+//                 return 'abc';
+//             })
+//             .getRegExp();
+
+//         assert.deepEqual(1, 2);
+//     });
+// });
