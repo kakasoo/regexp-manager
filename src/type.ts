@@ -264,3 +264,22 @@ export type EntriesToObject<T extends Array<NTuple<2>>> = T extends [infer F, ..
     : {};
 
 export type NotAUnion<T, U = T> = U extends any ? ([T] extends [U] ? T : never) : never;
+
+/**
+ * T <= P 인 경우에는 true
+ */
+type _RightIsMoreThanOrEqualLeft<T extends any[], P extends any[]> = P extends [...T, ...infer Rest] ? true : false;
+
+/**
+ * number range
+ *
+ * @exmple 1-9 ok
+ * @exmple 5-1 x  (right is less than left)
+ * @exmple 2-2 ok (case which is left and right is equals)
+ */
+export type NumberRange<T extends number, P extends number> = _RightIsMoreThanOrEqualLeft<
+    NTuple<T>,
+    NTuple<P>
+> extends true
+    ? `${T}-${P}`
+    : never;
