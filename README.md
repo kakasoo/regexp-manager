@@ -130,3 +130,7 @@ const expression = new RegExpPatternBuilder().range(1, 10).expression; // '1-10'
 ```
 
 ## optional
+
+```typescript
+const expression = new RegExpPatternBuilder().optional('abc').expression; // 'abc?'
+```
