@@ -12,6 +12,7 @@ import type {
     NegativeLookahead,
     NegativeLookbehind,
     NToNumber,
+    NumberRange,
     Optional,
     Or,
     Push,
@@ -81,9 +82,6 @@ export class RegExpPatternBuilder<
     }
 
     /**
-     * NOT IMPELEMENT
-     * DON'T USE THIS METHOD.
-     *
      * It is recommended not to use it because it is still incomplete `type infer`.
      *
      * @returns
@@ -92,6 +90,22 @@ export class RegExpPatternBuilder<
         const operand = `^${this.expression}` as const;
         const status = this.option('beginning', operand);
         const expression = `^${this.expression}` as const;
+        return new RegExpPatternBuilder(expression, status);
+    }
+
+    /**
+     * NOT IMPLEMENT
+     */
+    range<From extends number, To extends number>(
+        range: NumberRange<From, To>,
+    ): RegExpPatternBuilder<
+        NumberRange<From, To>,
+        Push<T, { range: NumberRange<From, To> }>,
+        NToNumber<Add<Depth, 1>>
+    > {
+        const operand = range;
+        const status = this.option('range', operand);
+        const expression = range;
         return new RegExpPatternBuilder(expression, status);
     }
 
@@ -288,6 +302,9 @@ export class RegExpPatternBuilder<
         }
     }
 
+    /**
+     * NOT IMPLEMENT
+     */
     join(): any {}
 
     /**

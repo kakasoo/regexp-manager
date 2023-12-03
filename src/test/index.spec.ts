@@ -132,12 +132,15 @@ describe('check "moreThan" method work correctly', () => {
     });
 });
 
-describe.only('check moreThan, lessThan, moreThanEqual, LessThanEqual both', () => {
+describe('check moreThan, lessThan, moreThanEqual, LessThanEqual both', () => {
+    /**
+     * @date 23.12.03
+     *
+     * failed
+     */
     it('If It use `moreThan` after `lessThan`, It will merged as `between`.', () => {
         const lessAndMore = new RegExpPatternBuilder('a').lessThan(3).moreThan(3);
         const between = new RegExpPatternBuilder('a').between(3, 3);
-
-        console.log(lessAndMore.path, 'path');
 
         assert.deepStrictEqual(lessAndMore.expression, between.expression);
     });
@@ -231,7 +234,7 @@ describe('check method structure', () => {
     });
 });
 
-describe('type test', () => {
+describe('type test for `Prediction` type', () => {
     describe('Slice type', () => {
         it('number tuple', async () => {
             const tuple = typia.random<Slice<[1, 2, 3, 4, 5, 6, 7], 1, 7>>();
@@ -354,10 +357,21 @@ describe('type test', () => {
     });
 });
 
-describe('beginning TEST', () => {
+describe('check "beginning" method work correctly.', () => {
     it('TEST 1', async () => {
         const builder = new RegExpPatternBuilder('abc').beginning();
         assert.deepStrictEqual(builder.expression === '^abc', true);
+    });
+
+    it('begining methods can not be used more than twice.', async () => {
+        new RegExpPatternBuilder('abc').beginning().beginning();
+    });
+});
+
+describe('check "range" method work correctly.', () => {
+    it('numbe range work correctly.', async () => {
+        const expression = new RegExpPatternBuilder().range('1-10').expression;
+        assert.deepStrictEqual(expression, '1-10');
     });
 });
 

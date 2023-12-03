@@ -252,8 +252,7 @@ export type RegExpTypeName =
     | 'lookahead'
     | 'lookbehind'
     | 'negativeLookahead'
-    | 'negativeLookbehind'
-    | 'beginning';
+    | 'negativeLookbehind';
 
 export type EntriesToObject<T extends Array<NTuple<2>>> = T extends [infer F, ...infer Rest]
     ? F extends [infer K extends string, infer V]
