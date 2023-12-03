@@ -18,14 +18,13 @@ import type {
     RegExpTypeName,
     Replaced,
     Sub,
-    _Prediction,
 } from './type';
 
 export class RegExpPatternBuilder<
     Pattern extends string = '',
     T extends Partial<Record<RegExpTypeName, string>>[] = [{ init: Pattern }],
     Depth extends number = 0,
-    Prediction = _Prediction<Pattern>, // predict a random string type that matches the `Pattern`
+    // Prediction = _Prediction<Pattern>, // predict a random string type that matches the `Pattern`
 > {
     private currentExpression: Pattern;
     private readonly status: T;
@@ -90,7 +89,8 @@ export class RegExpPatternBuilder<
      * @returns
      */
     beginning(): RegExpPatternBuilder<`^${Pattern}`, Push<T, { beginning: `^${Pattern}` }>, NToNumber<Add<Depth, 1>>> {
-        const status = this.option('beginning', `^${this.expression}`) as any;
+        const operand = `^${this.expression}` as const;
+        const status = this.option('beginning', operand);
         const expression = `^${this.expression}` as const;
         return new RegExpPatternBuilder(expression, status);
     }
