@@ -281,4 +281,4 @@ export type NumberRange<T extends number, P extends number> = _RightIsMoreThanOr
     NTuple<P>
 > extends true
     ? `${T}-${P}`
-    : never;
+    : never | '`TO` HAVE TO BE BIGGER THAN `FROM`';
