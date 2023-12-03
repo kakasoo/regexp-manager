@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import typia from 'typia';
 import { RegExpPatternBuilder } from '../regexp-pattern-builder';
-import { Slice, _Prediction } from '../type';
+import { NumberRange, Slice, _Prediction } from '../type';
 
 describe('new-feature', () => {
     describe('node-version 20.1.0 check', () => {
@@ -369,7 +369,7 @@ describe('check "beginning" method work correctly.', () => {
 });
 
 describe('check "range" method work correctly.', () => {
-    it('numbe range work correctly.', async () => {
+    it('number range work correctly.', async () => {
         const expression = new RegExpPatternBuilder().range('1-10').expression;
         assert.deepStrictEqual(expression, '1-10');
     });
@@ -377,6 +377,13 @@ describe('check "range" method work correctly.', () => {
     it('number range ( from and to format ) work correctly.', async () => {
         const expression = new RegExpPatternBuilder().range(1, 10).expression;
         assert.deepStrictEqual(expression, '1-10');
+    });
+
+    it('if `to` is bigger than `from`...?', async () => {
+        type Question = NumberRange<5, 1>;
+        const willBeTrue = typia.is<Question>('`TO` HAVE TO BE BIGGER THAN `FROM`');
+
+        assert.deepStrictEqual(willBeTrue, true);
     });
 });
 

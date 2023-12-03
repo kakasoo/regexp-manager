@@ -68,6 +68,7 @@ const capturingA = new RegExpPatternBuilder().capturing('A').expression; // '(A)
 ## quantifier methods
 
 There are four methods in `quantifier`: `lessThan`, `lessThanOrEqual`, `moreThan`, and `moreThanOrEqual`. They define how many times a previously specified character or string will exist based on a given number.
+if you want, you can use `between`. it will be easy to use builder.
 
 ```typescript
 // `lessThan` method
@@ -114,3 +115,18 @@ const nagativeLookbhind = new RegExpPatternBuilder('b').excludes('LEFT', 'a').ex
 // Below return 'b(?!a)'. And it's also inferred from the type.
 const negativeLookahead = new RegExpPatternBuilder('b').excludes('RIGHT', 'a').expression;
 ```
+
+## beginning
+
+```typescript
+const builder = new RegExpPatternBuilder('abc').beginning().expression; // '^abc'
+```
+
+## range
+
+```typescript
+const expression = new RegExpPatternBuilder().range('1-10').expression; // '1-10'
+const expression = new RegExpPatternBuilder().range(1, 10).expression; // '1-10'
+```
+
+## optional
