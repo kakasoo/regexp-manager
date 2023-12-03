@@ -1,3 +1,4 @@
+import typia from 'typia';
 import type {
     Add,
     And,
@@ -93,20 +94,33 @@ export class RegExpPatternBuilder<
         return new RegExpPatternBuilder(expression, status);
     }
 
-    /**
-     * NOT IMPLEMENT
-     */
+    range<From extends number, To extends number>(
+        from: From,
+        to: To,
+    ): RegExpPatternBuilder<NumberRange<From, To>, Push<T, { range: NumberRange<From, To> }>, NToNumber<Add<Depth, 1>>>;
     range<From extends number, To extends number>(
         range: NumberRange<From, To>,
+    ): RegExpPatternBuilder<NumberRange<From, To>, Push<T, { range: NumberRange<From, To> }>, NToNumber<Add<Depth, 1>>>;
+    range<From extends number, To extends number>(
+        fromOrRange: From | NumberRange<From, To>,
+        to?: To,
     ): RegExpPatternBuilder<
         NumberRange<From, To>,
         Push<T, { range: NumberRange<From, To> }>,
         NToNumber<Add<Depth, 1>>
     > {
-        const operand = range;
-        const status = this.option('range', operand);
-        const expression = range;
-        return new RegExpPatternBuilder(expression, status);
+        const typeGuard = (el: any): el is NumberRange<number, number> => typia.is<NumberRange<number, number>>(el);
+        if (typeGuard(fromOrRange) && to === undefined) {
+            const operand = fromOrRange;
+            const status = this.option('range', operand);
+            const expression = operand;
+            return new RegExpPatternBuilder(expression, status);
+        } else {
+            const operand = `${fromOrRange}-${to}` as NumberRange<From, To>;
+            const status = this.option('range', operand);
+            const expression = operand;
+            return new RegExpPatternBuilder(expression, status);
+        }
     }
 
     /**

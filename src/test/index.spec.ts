@@ -373,6 +373,11 @@ describe('check "range" method work correctly.', () => {
         const expression = new RegExpPatternBuilder().range('1-10').expression;
         assert.deepStrictEqual(expression, '1-10');
     });
+
+    it('number range ( from and to format ) work correctly.', async () => {
+        const expression = new RegExpPatternBuilder().range(1, 10).expression;
+        assert.deepStrictEqual(expression, '1-10');
+    });
 });
 
 // describe('async', () => {
